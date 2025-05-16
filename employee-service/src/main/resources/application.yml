@@ -3,3 +3,5 @@ spring:
     name: employee-service
   config:
     import: "optional:configserver:http://localhost:8088"
+  kafka:
+    bootstrap-servers: localhost:29092

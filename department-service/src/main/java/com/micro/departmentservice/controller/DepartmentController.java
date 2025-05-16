@@ -5,6 +5,7 @@ import com.micro.departmentservice.model.Department;
 import com.micro.departmentservice.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,14 +15,19 @@ import java.util.stream.Collectors;
 @RequestMapping("/departments")
 @RequiredArgsConstructor
 @Slf4j
+
 public class DepartmentController {
     private final DepartmentRepository departmentRepository;
     private final EmployeeClient employeeClient;
 
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
     @PostMapping()
     public Department addDepartment(@RequestBody Department department) {
         log.info("Inside addDepartment method of DepartmentController");
-        return departmentRepository.addDepartment(department);
+        Department department1 = departmentRepository.addDepartment(department);
+        kafkaTemplate.send("test-topic", department1);
+        return department1;
     }
 
     @GetMapping("/{id}")
