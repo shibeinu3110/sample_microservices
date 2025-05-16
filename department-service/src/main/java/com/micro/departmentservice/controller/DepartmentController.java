@@ -2,6 +2,7 @@ package com.micro.departmentservice.controller;
 
 import com.micro.departmentservice.client.EmployeeClient;
 import com.micro.departmentservice.model.Department;
+import com.micro.departmentservice.model.Employee;
 import com.micro.departmentservice.repository.DepartmentRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +49,7 @@ public class DepartmentController {
         List<Department> departments = departmentRepository.getAllDepartments();
         departments.stream().forEach(department -> {
             department.setEmployees(employeeClient.getEmployeesByDepartmentId(department.getId()));
+            kafkaTemplate.send("test-topic", department);
         });
         return departments;
     }

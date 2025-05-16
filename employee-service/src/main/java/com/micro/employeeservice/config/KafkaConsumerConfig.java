@@ -38,28 +38,4 @@ public class KafkaConsumerConfig {
         factory.setConsumerFactory(consumerFactory());
         return factory;
     }
-
-//    @Bean
-//    public ConsumerFactory<String, String> consumerFactory() {
-//        Map<String, Object> config = new HashMap<>();
-//
-//        //thong tin server kafka
-//        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:29092");
-//        // divide group by group id
-//        config.put(ConsumerConfig.GROUP_ID_CONFIG, "group-id");
-//        // key and value deserializer
-//        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//        return new DefaultKafkaConsumerFactory<>(config);
-//    }
-//
-//    // create kafka listener container factory which is used to create kafka listener container
-//    // listen to message from kafka producer
-//    @Bean
-//    public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(ConsumerFactory<String, String> consumerFactory) {
-//        ConcurrentKafkaListenerContainerFactory<String, String> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(consumerFactory());
-//        factory.setConcurrency(3);
-//        return factory;
-//    }
 }
