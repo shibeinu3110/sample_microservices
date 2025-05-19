@@ -11,13 +11,14 @@
         <module name="config-server" />
         <module name="service-registry" />
       </profile>
-      <profile name="Annotation profile for employee-service" enabled="true">
+      <profile name="Annotation profile for salary-service" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.38/lombok-1.18.38.jar" />
         </processorPath>
+        <module name="salary-service" />
         <module name="department-service" />
         <module name="employee-service" />
       </profile>
@@ -29,6 +30,7 @@
       <module name="config-server" options="-parameters" />
       <module name="department-service" options="-parameters" />
       <module name="employee-service" options="-parameters" />
+      <module name="salary-service" options="-parameters" />
       <module name="service-registry" options="-parameters" />
     </option>
   </component>

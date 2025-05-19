@@ -15,6 +15,10 @@ spring:
               uri: lb://employee-service
               predicates:
                 - Path=/employees/**
+            - id: salary-service
+              uri: lb://salary-service
+              predicates:
+                  - Path=/salaries/**
 
 
 
