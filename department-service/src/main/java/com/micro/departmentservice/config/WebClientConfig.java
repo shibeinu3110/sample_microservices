@@ -21,7 +21,7 @@ public class WebClientConfig {
     //we need to inject the load balanced exchange filter function
     //web client will make a call to the employee service
     //web client send a request to the employee service
-    //create a web client bean to call the employee service
+    //create a web client bean to call the employee service we don't need IP address because we are using load balancer
     @Bean
     public WebClient employeeWebClient() {
         return WebClient.builder()
