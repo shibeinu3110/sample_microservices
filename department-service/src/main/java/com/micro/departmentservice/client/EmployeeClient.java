@@ -15,5 +15,5 @@ public interface EmployeeClient {
     //call HTTP GET method to employees/department/{departmentId}
     //this url need to be the same as the one in EmployeeController
     @GetExchange("employees/department/{departmentId}")
-    public List<Employee> getEmployeesByDepartmentId(@PathVariable Long departmentId);
+    List<Employee> getEmployeesByDepartmentId(@PathVariable Long departmentId);
 }
