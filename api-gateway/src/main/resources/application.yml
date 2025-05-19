@@ -2,10 +2,11 @@ spring:
   application:
     name: api-gateway
   config:
-    import: "optional:configserver:http://localhost:8088"
+    import: "optional:configserver:http://localhost:8088" # load config from config server (port 8088)
   cloud:
     gateway:
         routes:
+            # auto redirect to department-service if the path starts with /departments using load balancer
             - id: department-service
               uri: lb://department-service
               predicates:
