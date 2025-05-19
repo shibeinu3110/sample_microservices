@@ -21,6 +21,7 @@
         <module name="salary-service" />
         <module name="department-service" />
         <module name="employee-service" />
+        <module name="email-service" />
       </profile>
     </annotationProcessing>
   </component>
@@ -29,6 +30,7 @@
       <module name="api-gateway" options="-parameters" />
       <module name="config-server" options="-parameters" />
       <module name="department-service" options="-parameters" />
+      <module name="email-service" options="-parameters" />
       <module name="employee-service" options="-parameters" />
       <module name="salary-service" options="-parameters" />
       <module name="service-registry" options="-parameters" />

@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: email-service
+  config:
+    import: "optional:configserver:http://localhost:8088"
+  kafka:
+    bootstrap-servers: localhost:29092
+  sendgrid:
+    api-key:
+    from-email: huyhungshiba@gmail.com
+    template-id: d-5011e6e73cba4532895b278b16e1aa4a
+  data:
+    mongodb:
+      uri: mongodb://admin:admin123@localhost:27017
+      username: admin
+      password: admin123
+      authentication-database: admin
+      port: 27017
+      host: localhost
+      database: test-mongodb

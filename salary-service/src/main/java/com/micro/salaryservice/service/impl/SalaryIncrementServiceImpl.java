@@ -1,16 +1,23 @@
 package com.micro.salaryservice.service.impl;
 
+import com.micro.salaryservice.client.EmployeeClient;
+import com.micro.salaryservice.dto.SalaryMailDTO;
+import com.micro.salaryservice.model.Employee;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.repository.SalaryIncrementRepository;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import com.micro.salaryservice.validator.SalaryIncrementValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -18,13 +25,32 @@ import java.util.List;
 public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     private final SalaryIncrementRepository salaryIncrementRepository;
     private final SalaryIncrementValidator salaryIncrementValidator;
+    private final EmployeeClient employeeClient;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement) {
+        //validate the salary increment
         salaryIncrementValidator.checkSalaryIncrement(salaryIncrement);
+        salaryIncrementValidator.checkValidEmployeeId(salaryIncrement.getEmployeeId());
+
         salaryIncrement.setCreatedDate(LocalDate.now());
         log.info("Creating salary increment: {}", salaryIncrement);
-        return salaryIncrementRepository.insert(salaryIncrement);
+        SalaryIncrement savedSalary = salaryIncrementRepository.insert(salaryIncrement);
+
+        //get the employee by employee id
+        Employee employee = employeeClient.getEmployeeById(salaryIncrement.getEmployeeId()).getData();
+
+        //mail service
+        SalaryMailDTO salaryMailDTO = new SalaryMailDTO();
+        salaryMailDTO.setSalaryIncrementId(savedSalary.getSalaryIncrementId());
+        salaryMailDTO.setIncrementAmount(savedSalary.getIncrementAmount());
+        salaryMailDTO.setCreatedDate(savedSalary.getCreatedDate());
+        salaryMailDTO.setEmployeeName(employee.firstName() + " " + employee.lastName());
+        salaryMailDTO.setEmployeeEmail(employee.email());
+
+        kafkaTemplate.send("email-topic", salaryMailDTO);
+        return savedSalary;
 
     }
 

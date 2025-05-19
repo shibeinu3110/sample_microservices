@@ -1,6 +1,7 @@
 package com.micro.salaryservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
@@ -20,6 +21,8 @@ public class SalaryIncrement {
     private String salaryIncrementId;
     @NotNull(message = "Employee ID cannot be null")
     private Long employeeId;
+
+    @Min(value = 0, message = "Increment amount must be greater than or equal to 0")
     private Long incrementAmount;
 
 

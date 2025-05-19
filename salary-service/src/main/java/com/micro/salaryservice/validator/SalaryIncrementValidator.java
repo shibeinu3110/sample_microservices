@@ -20,9 +20,6 @@ public class SalaryIncrementValidator {
 
     public void checkSalaryIncrement(SalaryIncrement salaryIncrement) {
         log.info("Validating salary increment: {}", salaryIncrement);
-        if(salaryIncrement.getIncrementAmount() <= 0) {
-            throw new StandardException(ErrorMessages.INVALID_VALUE, "Increment amount must be greater than 0");
-        }
         // Check if the employee ID is valid
         checkValidEmployeeId(salaryIncrement.getEmployeeId());
         checkDuplicateSalaryIncrementId(salaryIncrement.getSalaryIncrementId());
@@ -35,11 +32,6 @@ public class SalaryIncrementValidator {
         // Check if the salary increment ID is valid
         if(!newSalaryIncrement.getSalaryIncrementId().equals(currentSalaryIncrement.getSalaryIncrementId())) {
             throw new StandardException(ErrorMessages.SAVE_DATABASE_ERROR, "Can't change salary increment ID when updating");
-        }
-
-        // Check if the increment amount is valid
-        if(newSalaryIncrement.getIncrementAmount() <= 0) {
-            throw new StandardException(ErrorMessages.INVALID_VALUE, "Increment amount must be greater than 0");
         }
     }
 
