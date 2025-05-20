@@ -1,12 +1,14 @@
 package com.micro.emailservice.service.impl;
 
 
+import com.micro.emailservice.config.MailProperties;
 import com.sendgrid.Method;
 import com.sendgrid.SendGrid;
 import com.sendgrid.Request;
 import com.sendgrid.Response;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Email;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 import lombok.extern.slf4j.Slf4j;
@@ -27,13 +29,16 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class EmailServiceImpl {
-
-    @Value("${spring.sendgrid.from-email}")
-    private String from;
-
-    @Value("${spring.sendgrid.template-id}")
-    private String templateId;
     private final SendGrid sendGrid;
+    private final MailProperties mailProperties;
+
+    private String from;
+    private String templateId;
+    @PostConstruct
+    void init() {
+        this.from = mailProperties.getFromEmail();
+        this.templateId = mailProperties.getTemplateId();
+    }
 
     @KafkaListener(topics = "email-topic", groupId = "salary-increment")
     public void sendEmail(ConsumerRecord<String, Object> record) {

@@ -6,7 +6,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:29092
   sendgrid:
-    api-key:
+    api-key: ${SENDGRID_API_KEY}
     from-email: huyhungshiba@gmail.com
     template-id: d-5011e6e73cba4532895b278b16e1aa4a
   data:
