@@ -21,8 +21,8 @@ public class EmployeeValidator {
         log.info("Validating employee: {}", employee);
         checkDuplicatePostcode(employee.getPostcode());
         checkDuplicateEmployeeId(employee.getEmployeeId());
-        checkDuplicatePostcode(employee.getPostcode());
         checkDuplicatePhone(employee.getPhone());
+        checkDuplicateEmail(employee.getEmail());
     }
 
 
@@ -38,11 +38,22 @@ public class EmployeeValidator {
             checkDuplicatePhone(newEmployee.getPhone());
         }
         if (!currentEmployee.getEmail().equals(newEmployee.getEmail())) {
-            checkDuplicatePhone(newEmployee.getEmail());
+            checkDuplicateEmail(newEmployee.getEmail());
         }
         // Check if the employee phone number and email already exists
         if(!currentEmployee.getPostcode().equals(newEmployee.getPostcode())) {
             checkDuplicatePostcode(newEmployee.getPostcode());
+        }
+    }
+
+    private void checkDuplicateEmail(String email) {
+        log.info("Checking duplicate email: {}", email);
+        boolean exitsEmail = mongoTemplate.exists(
+                new Query(Criteria.where("email").is(email)),
+                Employee.class
+        );
+        if(exitsEmail) {
+            throw new StandardException(ErrorMessages.DUPLICATE, "Email already exists");
         }
     }
 
