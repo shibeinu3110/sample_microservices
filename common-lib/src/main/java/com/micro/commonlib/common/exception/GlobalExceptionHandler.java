@@ -1,10 +1,9 @@
-package com.micro.salaryservice.common.exception;
+package com.micro.commonlib.common.exception;
 
 
-
-import com.micro.salaryservice.common.StandardResponse;
-import com.micro.salaryservice.common.suberror.ApiSubError;
-import com.micro.salaryservice.common.suberror.ApiValidatorError;
+import com.micro.commonlib.common.StandardResponse;
+import com.micro.commonlib.common.suberror.ApiSubError;
+import com.micro.commonlib.common.suberror.ApiValidatorError;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
@@ -76,11 +75,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(StandardResponse.build(ErrorMessages.INVALID_VALUE, ex.getMessage()), HttpStatus.OK);
     }
 
-    @ExceptionHandler(NoHandlerFoundException.class)
-    protected ResponseEntity<StandardResponse<String>> handleNoHandlerFoundException(NoHandlerFoundException ex) {
-        log.info("handleNoHandlerFoundException. Message = {}", ex.getMessage(), ex);
-        return new ResponseEntity<>(StandardResponse.build(ErrorMessages.NOT_FOUND), HttpStatus.OK);
-    }
+//    @ExceptionHandler(NoHandlerFoundException.class)
+//    protected ResponseEntity<StandardResponse<String>> handleNoHandlerFoundException(NoHandlerFoundException ex) {
+//        log.info("handleNoHandlerFoundException. Message = {}", ex.getMessage(), ex);
+//        return new ResponseEntity<>(StandardResponse.build(ErrorMessages.NOT_FOUND), HttpStatus.OK);
+//    }
 
     @ExceptionHandler(StandardException.class)
     protected ResponseEntity<StandardResponse<String>> handleOctException(StandardException ex) {

@@ -1,8 +1,9 @@
 package com.micro.employeeservice.validator;
 
 
-import com.micro.employeeservice.common.exception.ErrorMessages;
-import com.micro.employeeservice.common.exception.StandardException;
+
+import com.micro.commonlib.common.exception.ErrorMessages;
+import com.micro.commonlib.common.exception.StandardException;
 import com.micro.employeeservice.model.Employee;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-package com.micro.salaryservice.common.suberror;
+package com.micro.commonlib.common.suberror;
 
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.micro.employeeservice.utils;
+package com.micro.commonlib.utils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;

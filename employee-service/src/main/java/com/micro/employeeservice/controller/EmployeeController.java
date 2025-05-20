@@ -1,8 +1,7 @@
 package com.micro.employeeservice.controller;
 
-import com.micro.employeeservice.common.StandardResponse;
+import com.micro.commonlib.common.StandardResponse;
 import com.micro.employeeservice.model.Employee;
-import com.micro.employeeservice.repository.EmployeeRepository;
 import com.micro.employeeservice.service.EmployeeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

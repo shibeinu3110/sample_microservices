@@ -1,4 +1,4 @@
-package com.micro.salaryservice.utils;
+package com.micro.commonlib.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

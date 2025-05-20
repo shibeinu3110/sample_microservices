@@ -1,4 +1,4 @@
-package com.micro.salaryservice.common.exception;
+package com.micro.commonlib.common.exception;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

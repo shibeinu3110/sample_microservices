@@ -1,6 +1,6 @@
 package com.micro.salaryservice.controller;
 
-import com.micro.salaryservice.common.StandardResponse;
+import com.micro.commonlib.common.StandardResponse;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import jakarta.validation.Valid;

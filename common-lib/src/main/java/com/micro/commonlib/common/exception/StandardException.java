@@ -1,4 +1,4 @@
-package com.micro.salaryservice.common.exception;
+package com.micro.commonlib.common.exception;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +15,8 @@ public class StandardException extends RuntimeException{
         this.errMsg = errMsg;
     }
     public StandardException(ErrorMessage errMsg, String detail) {
-        super();
+//        super();
+        super(errMsg != null ? errMsg.getMessage() + (detail != null ? ": " + detail : "") : detail);
         this.errMsg = errMsg;
         this.detail = detail;
     }
