@@ -1,8 +1,8 @@
 package com.micro.salaryservice.validator;
 
+import com.micro.commonlib.common.exception.ErrorMessages;
+import com.micro.commonlib.common.exception.StandardException;
 import com.micro.salaryservice.client.EmployeeClient;
-import com.micro.salaryservice.common.exception.ErrorMessages;
-import com.micro.salaryservice.common.exception.StandardException;
 import com.micro.salaryservice.model.SalaryIncrement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

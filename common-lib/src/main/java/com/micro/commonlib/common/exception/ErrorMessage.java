@@ -1,4 +1,4 @@
-package com.micro.employeeservice.common.exception;
+package com.micro.commonlib.common.exception;
 
 import java.io.Serializable;
 

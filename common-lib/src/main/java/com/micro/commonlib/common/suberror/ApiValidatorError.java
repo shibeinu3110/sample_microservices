@@ -1,4 +1,4 @@
-package com.micro.employeeservice.common.suberror;
+package com.micro.commonlib.common.suberror;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

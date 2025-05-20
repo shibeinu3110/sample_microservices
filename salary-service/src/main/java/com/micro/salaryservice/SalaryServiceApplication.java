@@ -5,7 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.micro.salaryservice",
+        "com.micro.commonlib.common.exception",  // Thêm package chứa GlobalExceptionHandler
+})
 @EnableDiscoveryClient
 @EnableMongoAuditing
 public class SalaryServiceApplication {
