@@ -20,7 +20,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.getWriter().write(
-                JsonHelper.toJson(StandardResponse.build(ErrorMessages.ACCESS_DENIED))
+                JsonHelper.toJson(StandardResponse.build(ErrorMessages.ACCESS_DENIED, "Duplicate username"))
         );
     }
 }
