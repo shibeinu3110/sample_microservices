@@ -46,4 +46,11 @@ public class SalaryController {
     public StandardResponse<List<SalaryIncrement>> getSalaryIncrementsByEmployeeId(@PathVariable Long employeeId) {
         return StandardResponse.build(salaryIncrementService.getSalaryIncrementsByEmployeeId(employeeId), "Salary increments retrieved successfully");
     }
+
+    @GetMapping("/check")
+    public StandardResponse<String> check(@RequestHeader("username") String username, @RequestHeader("role") String role) {
+        log.info("Username: {}", username);
+        log.info("Role: {}", role);
+        return StandardResponse.build("Salary service is running");
+    }
 }
