@@ -19,6 +19,10 @@ spring:
               uri: lb://salary-service
               predicates:
                   - Path=/salaries/**
+            - id: auth-service
+              uri: lb://auth-service
+              predicates:
+                  - Path=/auth/**
 
 
 
