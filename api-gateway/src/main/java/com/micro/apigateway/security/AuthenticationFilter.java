@@ -2,6 +2,7 @@ package com.micro.apigateway.security;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.micro.apigateway.config.SecretKeyProperties;
 import com.micro.apigateway.validator.RouteValidator;
 import com.micro.commonlib.common.StandardResponse;
 import com.micro.commonlib.common.exception.ErrorMessages;
@@ -28,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 @Slf4j(topic = "GATEWAY-FILTER")
 public class AuthenticationFilter implements GlobalFilter {
+
     private final JwtProvider jwtProvider;
     private final RedisTemplate<String, Object> redisTemplate;
     private final RouteValidator routeValidator;
