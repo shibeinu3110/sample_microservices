@@ -1,11 +1,14 @@
 package com.micro.authservice.security;
 
+import com.micro.authservice.config.SecretKeyProperties;
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,11 +26,18 @@ import static com.micro.authservice.consts.SecurityConst.*;
 
 
 @Service
-@Slf4j
+@Slf4j(topic = "AUTH-SERVICE-JWT")
+@RequiredArgsConstructor
 public class JwtProviderImpl implements JwtProvider {
-    @Value("${jwt.secret}")
-
+//    @Value("${jwt.secret}")
+    private final SecretKeyProperties secretKeyProperties;
     private String secretKey;
+
+    @PostConstruct
+    void init() {
+        this.secretKey = secretKeyProperties.getSecret();
+        log.info("Secret key: {}", secretKey);
+    }
 
     @Override
     public String generateToken(String username, String role) {
