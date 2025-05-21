@@ -12,4 +12,5 @@ public interface AuthenticationService {
     SignUpResponse signIn(SignInRequest signInRequest);
     TokenResponse getRefreshToken(HttpServletRequest refreshToken);
 
+    String logout(HttpServletRequest request);
 }

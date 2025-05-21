@@ -93,4 +93,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public TokenResponse getRefreshToken(HttpServletRequest refreshToken) {
         return null;
     }
+
+    @Override
+    public String logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        log.info("Logout request received with header: {}", authHeader);
+
+        if(authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+            String username = jwtProvider.extractUsername(token);
+            redisTemplate.delete(ACCESS_TOKEN + username);
+            return "Logout successful";
+        }
+
+        return null;
+    }
 }
