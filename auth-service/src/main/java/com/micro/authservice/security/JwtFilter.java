@@ -53,11 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
             String storedToken = (String) redisTemplate.opsForValue().get(ConstParameter.ACCESS_TOKEN + username);
-            if (StringUtils.hasLength(redisTemplate.opsForValue().get(ConstParameter.BLACK_LIST + username).toString())) {
-                long minutes = redisTemplate.getExpire(ConstParameter.BLACK_LIST + username, TimeUnit.MINUTES);
-                log.info("Token is blacklisted for {} minutes", minutes);
-                throw new StandardException(ErrorMessages.ACCESS_DENIED, "Token is blacklisted");
-            }
+
             if (storedToken != null && storedToken.equals(token)) {
                 UserDetails userDetails = context.getBean(MyUserDetailsService.class).loadUserByUsername(username);
                 if (jwtProvider.validateToken(token, userDetails)) {

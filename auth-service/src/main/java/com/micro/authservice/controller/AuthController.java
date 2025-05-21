@@ -6,6 +6,7 @@ import com.micro.authservice.message.response.SignUpResponse;
 import com.micro.authservice.message.response.TokenResponse;
 import com.micro.authservice.service.AuthenticationService;
 import com.micro.commonlib.common.StandardResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,5 +29,10 @@ public class AuthController {
     @PostMapping("/sign-in")
     public StandardResponse<SignUpResponse> login(@RequestBody SignInRequest sign) {
         return StandardResponse.build(authenticationService.signIn(sign));
+    }
+
+    @PostMapping("/logout")
+    public StandardResponse<String> logout(HttpServletRequest request) {
+        return StandardResponse.build(authenticationService.logout(request));
     }
 }
