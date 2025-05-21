@@ -36,24 +36,25 @@ public class AuthenticationFilter implements GlobalFilter {
         log.info("Need to check authentication for route: {}", serverHttpRequest.getPath());
         // handle token
         if(!serverHttpRequest.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-            return Mono.error(new StandardException(ErrorMessages.ACCESS_DENIED, "Missing Authorization Header"));
+            throw new StandardException(ErrorMessages.ACCESS_DENIED, "Missing Authorization Header");
         }
 
         String authHeader = serverHttpRequest.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            return Mono.error(new StandardException(ErrorMessages.ACCESS_DENIED, "Invalid Authorization Header"));
+            throw new StandardException(ErrorMessages.ACCESS_DENIED, "Invalid Authorization Header");
         }
         String token = authHeader.substring(7);
         String username = jwtProvider.extractUsername(token);
         String role = jwtProvider.extractRole(token);
-        if(redisTemplate.opsForValue().get(ACCESS_TOKEN + username)==null) {
-            return Mono.error(new StandardException(ErrorMessages.ACCESS_DENIED, "Token not found"));
+        if(redisTemplate.opsForValue().get(ACCESS_TOKEN + username)==null &&
+                !redisTemplate.opsForValue().get(ACCESS_TOKEN + username).equals(token)){
+            throw new StandardException(ErrorMessages.ACCESS_DENIED, "Token not found");
         }
 
 
         if (username == null || role == null) {
-            return Mono.error(new StandardException(ErrorMessages.ACCESS_DENIED, "Invalid token"));
+            throw new StandardException(ErrorMessages.ACCESS_DENIED, "Invalid token");
         }
 
 
