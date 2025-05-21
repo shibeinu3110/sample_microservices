@@ -10,6 +10,7 @@ import com.micro.authservice.repository.UserRepository;
 import com.micro.authservice.security.JwtProvider;
 
 import com.micro.authservice.service.AuthenticationService;
+import com.micro.authservice.validator.UserValidator;
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,10 +37,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtProvider jwtProvider;
     private final AuthenticationManager authenticationManager;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final UserValidator userValidator;
 
     private final String ACCESS_TOKEN="redisAccessToken";
     @Override
     public SignUpResponse signUp(SignUpRequest signUpRequest) {
+        userValidator.checkDuplicateUsername(signUpRequest.getUsername());
+
         User user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setUsername(signUpRequest.getUsername());
