@@ -1,24 +1,28 @@
 package com.micro.salaryservice.controller;
 
 import com.micro.commonlib.common.StandardResponse;
+
 import com.micro.commonlib.common.enumarate.UserStatus;
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
 import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
+import com.micro.salaryservice.service.ExcelService;
+import com.micro.salaryservice.service.PdfService;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -27,10 +31,13 @@ import java.util.List;
 @Slf4j(topic = "SALARY-CONTROLLER")
 public class SalaryController {
     private final SalaryIncrementService salaryIncrementService;
+    private final ExcelService excelService;
+    private final PdfService pdfService;
     @PostMapping()
     public StandardResponse<SalaryIncrement> createSalaryIncrement(@Valid @RequestBody SalaryIncrement salaryIncrement,
                                                                    HttpServletRequest request) {
         SalaryIncrement salaryIncrement1 = null;
+
         if(request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
             salaryIncrement1 = salaryIncrementService.createSalaryIncrement(salaryIncrement, request);
         }
@@ -106,6 +113,26 @@ public class SalaryController {
         }
 
         return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, request), "Leader decision made successfully");
+    }
+
+    @GetMapping("/excel")
+    public StandardResponse<String> exportSalaryIncrementExcel(HttpServletResponse response) {
+        log.info("Exporting salary increments to Excel");
+        Object object = excelService.exportExcelFile(response);
+        // Implement the logic to export salary increments to Excel
+        return StandardResponse.build("Excel file generated successfully");
+    }
+
+    @GetMapping("/pdf")
+    public StandardResponse<String> exportSalaryIncrementPdf(HttpServletResponse response) {
+        log.info("Exporting salary increments to PDF");
+        try {
+            pdfService.exportPdfFile(response);
+        } catch (IOException e) {
+            throw new StandardException(ErrorMessages.BAD_REQUEST, "Error while writing PDF file");
+        }
+        // Implement the logic to export salary increments to Excel
+        return StandardResponse.build("Excel file generated successfully");
     }
 
 
