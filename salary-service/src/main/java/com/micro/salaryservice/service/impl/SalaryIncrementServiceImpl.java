@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     private final SalaryIncrementValidator salaryIncrementValidator;
     private final EmployeeClient employeeClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final RedisTemplate<String, SalaryIncrement> redisTemplate;
 
     @Override
     public SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement, HttpServletRequest request) {
@@ -70,7 +73,15 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     public SalaryIncrement getSalaryIncrementById(String salaryIncrementId) {
         log.info("Getting salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
-        return salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
+
+        if(redisTemplate.opsForValue().get(salaryIncrementId) == null) {
+            SalaryIncrement salaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
+            redisTemplate.opsForValue().set(salaryIncrementId, salaryIncrement, 30, TimeUnit.MINUTES);
+            return salaryIncrement;
+        } else {
+            return redisTemplate.opsForValue().get(salaryIncrementId);
+        }
+
     }
 
     @Override
@@ -103,6 +114,11 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryIncrementValidator.checkSalaryIncrementToUpdate(currentSalaryIncrement, salaryIncrement);
         currentSalaryIncrement.setUpdatedBy(request.getHeader("username"));
         currentSalaryIncrement.setStatus(Status.UPDATED);
+        currentSalaryIncrement.setIncrementAmount(salaryIncrement.getIncrementAmount());
+
+        if(redisTemplate.opsForValue().get(currentSalaryIncrement.getSalaryIncrementId())!=null) {
+            redisTemplate.opsForValue().set(currentSalaryIncrement.getSalaryIncrementId(), currentSalaryIncrement, 30, TimeUnit.MINUTES);
+        }
 
         return salaryIncrementRepository.save(currentSalaryIncrement);
     }
@@ -116,6 +132,10 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to delete it");
         }
         salaryIncrementRepository.deleteBySalaryIncrementId(salaryIncrementId);
+
+        if(redisTemplate.opsForValue().get(salaryIncrementId) != null) {
+            redisTemplate.delete(salaryIncrementId);
+        }
     }
 
     @Override
@@ -141,6 +161,10 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryIncrement.setLeaderNote(leaderDecisionDTO.getNote());
         salaryIncrement.setEndBy(name);
         salaryIncrement.setEndDate(LocalDate.now());
+
+        if(redisTemplate.opsForValue().get(salaryIncrement.getSalaryIncrementId())!=null) {
+            redisTemplate.opsForValue().set(salaryIncrement.getSalaryIncrementId(), salaryIncrement, 30, TimeUnit.MINUTES);
+        }
         return salaryIncrementRepository.save(salaryIncrement);
     }
 }
