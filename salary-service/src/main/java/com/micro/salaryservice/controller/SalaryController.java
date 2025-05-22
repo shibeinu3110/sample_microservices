@@ -4,13 +4,19 @@ import com.micro.commonlib.common.StandardResponse;
 import com.micro.commonlib.common.enumarate.UserStatus;
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
+import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
+
 
 import java.util.List;
 
@@ -35,12 +41,16 @@ public class SalaryController {
 
     @GetMapping("/{salaryIncrementId}")
     public StandardResponse<SalaryIncrement> getSalaryIncrement(@PathVariable String salaryIncrementId) {
+
         return StandardResponse.build(salaryIncrementService.getSalaryIncrementById(salaryIncrementId), "Salary increment retrieved successfully");
     }
 
     @GetMapping("/all")
-    public StandardResponse<List<SalaryIncrement>> getAllSalaryIncrements() {
-        return StandardResponse.build(salaryIncrementService.getAllSalaryIncrements(), "All salary increments retrieved successfully");
+    public StandardResponse<PageResponse<SalaryIncrement>> getAllSalaryIncrements(@RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size) {
+        int pageIndex = Math.max(page-1,0);
+        Pageable pageable = PageRequest.of(pageIndex, size);
+        return StandardResponse.build(salaryIncrementService.getAllSalaryIncrements(pageable), "All salary increments retrieved successfully");
     }
 
     @PutMapping("/{salaryIncrementId}")

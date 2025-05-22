@@ -2,6 +2,7 @@ package com.micro.salaryservice.service.impl;
 
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
+import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.client.EmployeeClient;
 import com.micro.salaryservice.common.enumarate.Status;
 import com.micro.salaryservice.dto.SalaryMailDTO;
@@ -14,6 +15,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
@@ -70,8 +73,15 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     }
 
     @Override
-    public List<SalaryIncrement> getAllSalaryIncrements() {
-        return salaryIncrementRepository.findAll();
+    public PageResponse<SalaryIncrement> getAllSalaryIncrements(Pageable pageable) {
+        var pageDate =  salaryIncrementRepository.findAll(pageable);
+
+        return PageResponse.<SalaryIncrement>builder()
+                .currentPage(pageDate.getNumber()+1)
+                .totalPage(pageDate.getTotalPages())
+                .totalElements(pageDate.getTotalElements())
+                .data(pageDate.getContent())
+                .build();
     }
 
     @Override
