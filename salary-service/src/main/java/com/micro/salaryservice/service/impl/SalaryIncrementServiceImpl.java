@@ -101,6 +101,10 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         log.info("Updating salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
         SalaryIncrement currentSalaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
+        if(currentSalaryIncrement.getStatus() == null) {
+            throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to be updated");
+        }
+
         if(!Status.isValidToUpdate(currentSalaryIncrement.getStatus().toString())) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to be updated");
         }
@@ -148,6 +152,9 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     @Override
     public SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, HttpServletRequest request) {
         SalaryIncrement salaryIncrement = getSalaryIncrementById(salaryIncrementId);
+        if (salaryIncrement.getStatus() == null) {
+            throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
+        }
         if(!Status.isValidStatusForLeader(salaryIncrement.getStatus().toString())) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
         }
