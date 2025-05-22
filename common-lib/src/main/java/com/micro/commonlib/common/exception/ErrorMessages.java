@@ -17,6 +17,12 @@ public enum ErrorMessages implements ErrorMessage {
     NOT_FOUND(404, "Resource not found"),
     DUPLICATE(33,"Duplicate attribute"),
     INVALID_FORMAT(34,"invalid format input"),
+    INVALID_CREDENTIALS(401, "Invalid credentials"),
+    UNAUTHORIZED(401, "Unauthorized"),
+    FORBIDDEN(403, "Forbidden"),
+    INTERNAL_SERVER_ERROR(500, "Internal server error"),
+    INVALID_TOKEN(401_001, "Invalid token"),
+    EXPIRED_TOKEN(401_002, "Expired token")
     ;
 
     int code;
