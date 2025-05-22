@@ -9,6 +9,7 @@ import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.service.ExcelService;
+import com.micro.salaryservice.service.PdfService;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -30,6 +32,7 @@ import java.util.List;
 public class SalaryController {
     private final SalaryIncrementService salaryIncrementService;
     private final ExcelService excelService;
+    private final PdfService pdfService;
     @PostMapping()
     public StandardResponse<SalaryIncrement> createSalaryIncrement(@Valid @RequestBody SalaryIncrement salaryIncrement,
                                                                    HttpServletRequest request) {
@@ -116,6 +119,18 @@ public class SalaryController {
     public StandardResponse<String> exportSalaryIncrementExcel(HttpServletResponse response) {
         log.info("Exporting salary increments to Excel");
         Object object = excelService.exportExcelFile(response);
+        // Implement the logic to export salary increments to Excel
+        return StandardResponse.build("Excel file generated successfully");
+    }
+
+    @GetMapping("/pdf")
+    public StandardResponse<String> exportSalaryIncrementPdf(HttpServletResponse response) {
+        log.info("Exporting salary increments to PDF");
+        try {
+            pdfService.exportPdfFile(response);
+        } catch (IOException e) {
+            throw new StandardException(ErrorMessages.BAD_REQUEST, "Error while writing PDF file");
+        }
         // Implement the logic to export salary increments to Excel
         return StandardResponse.build("Excel file generated successfully");
     }
