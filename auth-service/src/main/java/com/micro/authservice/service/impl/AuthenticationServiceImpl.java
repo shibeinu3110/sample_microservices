@@ -52,10 +52,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String role = roleRepository.findById(signUpRequest.getRoleId().toString()).get().getRole();
         userRepository.save(user);
         return SignUpResponse.builder()
-                .token(jwtProvider.generateToken(user.getUsername(), role))
+                .token(null)
                 .name(user.getUsername())
                 .roleId(user.getRoleId())
-                .roleName(roleRepository.findById(user.getRoleId()).get().getRole())
+                .roleName(role)
                 .build();
     }
 
