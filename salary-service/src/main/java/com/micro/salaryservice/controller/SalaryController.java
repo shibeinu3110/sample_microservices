@@ -5,6 +5,7 @@ import com.micro.commonlib.common.enumarate.UserStatus;
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
 import com.micro.commonlib.response.PageResponse;
+import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -95,4 +96,17 @@ public class SalaryController {
         }
         return StandardResponse.build("Salary service is running");
     }
+
+    @PutMapping("/leader-decision/{salaryIncrementId}")
+    public StandardResponse<SalaryIncrement> leaderDecision(@PathVariable String salaryIncrementId,
+                                                            @RequestBody LeaderDecisionDTO leaderDecisionDTO,
+                                                            HttpServletRequest request) {
+        if(!request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_LEADER.toString())) {
+            throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_LEADER to make a decision");
+        }
+
+        return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, request), "Leader decision made successfully");
+    }
+
+
 }

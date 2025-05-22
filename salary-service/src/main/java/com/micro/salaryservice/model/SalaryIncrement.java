@@ -33,4 +33,8 @@ public class SalaryIncrement {
     private String createdBy;
     private String updatedBy;
     private String createdByRole;
+
+    private String endBy;
+    private LocalDate endDate;
+    private String leaderNote;
 }

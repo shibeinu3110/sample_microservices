@@ -5,6 +5,7 @@ import com.micro.commonlib.common.exception.StandardException;
 import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.client.EmployeeClient;
 import com.micro.salaryservice.common.enumarate.Status;
+import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.dto.SalaryMailDTO;
 import com.micro.salaryservice.model.Employee;
 import com.micro.salaryservice.model.SalaryIncrement;
@@ -89,6 +90,10 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         log.info("Updating salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
         SalaryIncrement currentSalaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
+        if(!Status.isValidToUpdate(currentSalaryIncrement.getStatus().toString())) {
+            throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to be updated");
+        }
+
         String name = request.getHeader("username");
         if(!name.equals(currentSalaryIncrement.getCreatedBy())) {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to update it");
@@ -96,9 +101,6 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
 
 
         salaryIncrementValidator.checkSalaryIncrementToUpdate(currentSalaryIncrement, salaryIncrement);
-//        salaryIncrement.setCreatedDate(currentSalaryIncrement.getCreatedDate());
-//        salaryIncrement.setStatus(Status.UPDATED);
-//        salaryIncrement.setUpdatedBy(request.getHeader("username"));
         currentSalaryIncrement.setUpdatedBy(request.getHeader("username"));
         currentSalaryIncrement.setStatus(Status.UPDATED);
 
@@ -121,5 +123,24 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryIncrementValidator.checkValidEmployeeId(employeeId);
         log.info("Getting salary increments for employee ID: {}", employeeId);
         return salaryIncrementRepository.findByEmployeeId(employeeId);
+    }
+
+    @Override
+    public SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, HttpServletRequest request) {
+        SalaryIncrement salaryIncrement = getSalaryIncrementById(salaryIncrementId);
+        if(!Status.isValidStatusForLeader(salaryIncrement.getStatus().toString())) {
+            throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
+        }
+
+        String name = request.getHeader("username");
+        if(!Status.isValidStatusForLeaderDecision(leaderDecisionDTO.getStatus())) {
+            throw new StandardException(ErrorMessages.INVALID_STATUS, "Leader can only approve or reject salary increment");
+        }
+
+        salaryIncrement.setStatus(Status.valueOf(leaderDecisionDTO.getStatus().toUpperCase()));
+        salaryIncrement.setLeaderNote(leaderDecisionDTO.getNote());
+        salaryIncrement.setEndBy(name);
+        salaryIncrement.setEndDate(LocalDate.now());
+        return salaryIncrementRepository.save(salaryIncrement);
     }
 }

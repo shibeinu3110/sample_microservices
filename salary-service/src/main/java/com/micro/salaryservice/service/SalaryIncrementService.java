@@ -1,6 +1,7 @@
 package com.micro.salaryservice.service;
 
 import com.micro.commonlib.response.PageResponse;
+import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
@@ -20,4 +21,6 @@ public interface SalaryIncrementService {
     void deleteSalaryIncrement(String salaryIncrementId, HttpServletRequest request);
 
     List<SalaryIncrement> getSalaryIncrementsByEmployeeId(Long employeeId);
+
+    SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, HttpServletRequest request);
 }
