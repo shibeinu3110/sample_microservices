@@ -1,12 +1,16 @@
 package com.micro.salaryservice.service.impl;
 
+import com.micro.commonlib.common.exception.ErrorMessages;
+import com.micro.commonlib.common.exception.StandardException;
 import com.micro.salaryservice.client.EmployeeClient;
+import com.micro.salaryservice.common.enumarate.Status;
 import com.micro.salaryservice.dto.SalaryMailDTO;
 import com.micro.salaryservice.model.Employee;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.repository.SalaryIncrementRepository;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import com.micro.salaryservice.validator.SalaryIncrementValidator;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -29,13 +33,17 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
-    public SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement) {
+    public SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement, HttpServletRequest request) {
         //validate the salary increment
         salaryIncrementValidator.checkSalaryIncrement(salaryIncrement);
         salaryIncrementValidator.checkValidEmployeeId(salaryIncrement.getEmployeeId());
 
+
         salaryIncrement.setCreatedDate(LocalDate.now());
         log.info("Creating salary increment: {}", salaryIncrement);
+        salaryIncrement.setStatus(Status.CREATED);
+        salaryIncrement.setCreatedBy(request.getHeader("username"));
+        salaryIncrement.setCreatedByRole(request.getHeader("role"));
         SalaryIncrement savedSalary = salaryIncrementRepository.insert(salaryIncrement);
 
         //get the employee by employee id
@@ -67,19 +75,34 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     }
 
     @Override
-    public SalaryIncrement updateSalaryIncrement(String salaryIncrementId, SalaryIncrement salaryIncrement) {
+    public SalaryIncrement updateSalaryIncrement(String salaryIncrementId, SalaryIncrement salaryIncrement, HttpServletRequest request) {
         log.info("Updating salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
         SalaryIncrement currentSalaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
+        String name = request.getHeader("username");
+        if(!name.equals(currentSalaryIncrement.getCreatedBy())) {
+            throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to update it");
+        }
+
+
         salaryIncrementValidator.checkSalaryIncrementToUpdate(currentSalaryIncrement, salaryIncrement);
-        salaryIncrement.setCreatedDate(currentSalaryIncrement.getCreatedDate());
-        return salaryIncrementRepository.save(salaryIncrement);
+//        salaryIncrement.setCreatedDate(currentSalaryIncrement.getCreatedDate());
+//        salaryIncrement.setStatus(Status.UPDATED);
+//        salaryIncrement.setUpdatedBy(request.getHeader("username"));
+        currentSalaryIncrement.setUpdatedBy(request.getHeader("username"));
+        currentSalaryIncrement.setStatus(Status.UPDATED);
+
+        return salaryIncrementRepository.save(currentSalaryIncrement);
     }
 
     @Override
-    public void deleteSalaryIncrement(String salaryIncrementId) {
+    public void deleteSalaryIncrement(String salaryIncrementId, HttpServletRequest request) {
         log.info("Deleting salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
+        String name = request.getHeader("username");
+        if(!name.equals(salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId).getCreatedBy())) {
+            throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to delete it");
+        }
         salaryIncrementRepository.deleteBySalaryIncrementId(salaryIncrementId);
     }
 
