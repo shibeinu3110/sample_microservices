@@ -1,6 +1,7 @@
 package com.micro.salaryservice.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.micro.salaryservice.common.enumarate.Status;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
@@ -27,4 +28,13 @@ public class SalaryIncrement {
 
 
     private LocalDate createdDate;
+
+    private Status status;
+    private String createdBy;
+    private String updatedBy;
+    private String createdByRole;
+
+    private String endBy;
+    private LocalDate endDate;
+    private String leaderNote;
 }

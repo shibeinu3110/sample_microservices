@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+		"com.micro.apigateway",
+		"com.micro.commonlib.common.exception",  // Thêm package chứa GlobalExceptionHandler
+})
 @EnableDiscoveryClient
 @EnableConfigurationProperties(SecretKeyProperties.class)
 public class ApiGatewayApplication {

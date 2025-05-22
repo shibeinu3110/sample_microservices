@@ -10,13 +10,20 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ErrorMessages implements ErrorMessage {
     SUCCESS(200, "Success"),
-    ACCESS_DENIED(403, "User is not allowed to access this resource"),
+    ACCESS_DENIED(403, "User are not allowed to access this resource"),
     BAD_REQUEST(400, "Bad request"),
     INVALID_VALUE(400_001, "Invalid value"),
     SAVE_DATABASE_ERROR(400_002, "Save database error"),
     NOT_FOUND(404, "Resource not found"),
     DUPLICATE(33,"Duplicate attribute"),
     INVALID_FORMAT(34,"invalid format input"),
+    INVALID_CREDENTIALS(401, "Invalid credentials"),
+    UNAUTHORIZED(401, "Unauthorized"),
+    FORBIDDEN(403, "Forbidden"),
+    INTERNAL_SERVER_ERROR(500, "Internal server error"),
+    INVALID_TOKEN(401_001, "Invalid token"),
+    EXPIRED_TOKEN(401_002, "Expired token"),
+    INVALID_STATUS(401_003, "Invalid status")
     ;
 
     int code;
