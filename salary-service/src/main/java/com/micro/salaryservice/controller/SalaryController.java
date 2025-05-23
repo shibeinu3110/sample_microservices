@@ -9,7 +9,7 @@ import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.consts.ConstParameter;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
-import com.micro.salaryservice.service.ExportService;
+
 
 import com.micro.salaryservice.service.SalaryIncrementService;
 import com.micro.salaryservice.service.impl.ExportServiceFactory;
@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 @RestController
@@ -42,7 +41,9 @@ public class SalaryController {
         SalaryIncrement salaryIncrement1 = null;
 
         if(request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
-            salaryIncrement1 = salaryIncrementService.createSalaryIncrement(salaryIncrement, request);
+            String username = request.getHeader("username");
+            String role = request.getHeader("role");
+            salaryIncrement1 = salaryIncrementService.createSalaryIncrement(salaryIncrement, username, role);
         }
         else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to create salary increment");
@@ -79,7 +80,9 @@ public class SalaryController {
 
         SalaryIncrement salaryIncrement1 = null;
         if(request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
-            salaryIncrement1 = salaryIncrementService.updateSalaryIncrement(salaryIncrementId, salaryIncrement, request);
+            String username = request.getHeader("username");
+            String role = request.getHeader("role");
+            salaryIncrement1 = salaryIncrementService.updateSalaryIncrement(salaryIncrementId, salaryIncrement, username);
         }
         else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to update salary increment");
@@ -91,7 +94,9 @@ public class SalaryController {
     @DeleteMapping("/{salaryIncrementId}")
     public StandardResponse<String> deleteSalaryIncrement(@PathVariable String salaryIncrementId, HttpServletRequest request) {
         if(request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
-            salaryIncrementService.deleteSalaryIncrement(salaryIncrementId, request);
+            String username = request.getHeader("username");
+            String role = request.getHeader("role");
+            salaryIncrementService.deleteSalaryIncrement(salaryIncrementId, username);
         }
         else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to delete this salary increment");
@@ -104,18 +109,7 @@ public class SalaryController {
         return StandardResponse.build(salaryIncrementService.getSalaryIncrementsByEmployeeId(employeeId), "Salary increments retrieved successfully");
     }
 
-    @GetMapping("/check")
-    public StandardResponse<String> check(@RequestHeader("username") List<String> username, @RequestHeader("role") List<String> role) {
-        log.info("Username: {}", username.toString());
-        log.info("Role: {}", role.toString());
-        if(UserStatus.ROLE_LEADER.toString().equals(role)) {
-            log.info("User is a leader");
-        } else {
 
-            log.info(UserStatus.ROLE_LEADER.toString());
-        }
-        return StandardResponse.build("Salary service is running");
-    }
 
     @PutMapping("/leader-decision/{salaryIncrementId}")
     public StandardResponse<SalaryIncrement> leaderDecision(@PathVariable String salaryIncrementId,
@@ -125,7 +119,9 @@ public class SalaryController {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_LEADER to make a decision");
         }
 
-        return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, request), "Leader decision made successfully");
+        String username = request.getHeader("username");
+        String role = request.getHeader("role");
+        return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, username), "Leader decision made successfully");
     }
 
 
@@ -150,6 +146,20 @@ public class SalaryController {
             throw new StandardException(ErrorMessages.BAD_REQUEST, "Error while writing PDF file");
         }
         return StandardResponse.build("Excel file generated successfully");
+    }
+
+
+    @GetMapping("/check")
+    public StandardResponse<String> check(@RequestHeader("username") List<String> username, @RequestHeader("role") List<String> role) {
+        log.info("Username: {}", username.toString());
+        log.info("Role: {}", role.toString());
+        if(UserStatus.ROLE_LEADER.toString().equals(role)) {
+            log.info("User is a leader");
+        } else {
+
+            log.info(UserStatus.ROLE_LEADER.toString());
+        }
+        return StandardResponse.build("Salary service is running");
     }
 
 

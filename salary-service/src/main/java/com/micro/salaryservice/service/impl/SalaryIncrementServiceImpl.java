@@ -43,7 +43,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     private final RedisTemplate<String, SalaryIncrement> redisTemplate;
 
     @Override
-    public SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement, HttpServletRequest request) {
+    public SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement, String username, String role) {
         //validate the salary increment
         salaryIncrementValidator.checkSalaryIncrement(salaryIncrement);
         salaryIncrementValidator.checkValidEmployeeId(salaryIncrement.getEmployeeId());
@@ -52,8 +52,8 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryIncrement.setCreatedDate(LocalDate.now());
         log.info("Creating salary increment: {}", salaryIncrement);
         salaryIncrement.setStatus(Status.CREATED);
-        salaryIncrement.setCreatedBy(request.getHeader("username"));
-        salaryIncrement.setCreatedByRole(request.getHeader("role"));
+        salaryIncrement.setCreatedBy(username);
+        salaryIncrement.setCreatedByRole(role);
         SalaryIncrement savedSalary = salaryIncrementRepository.insert(salaryIncrement);
 
         //get the employee by employee id
@@ -97,7 +97,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
 
     @Override
     @CachePut(value = "salary", key = "#salaryIncrementId")
-    public SalaryIncrement updateSalaryIncrement(String salaryIncrementId, SalaryIncrement salaryIncrement, HttpServletRequest request) {
+    public SalaryIncrement updateSalaryIncrement(String salaryIncrementId, SalaryIncrement salaryIncrement, String username) {
         log.info("Updating salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
         SalaryIncrement currentSalaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
@@ -109,14 +109,14 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to be updated");
         }
 
-        String name = request.getHeader("username");
+        String name = username;
         if(!name.equals(currentSalaryIncrement.getCreatedBy())) {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to update it");
         }
 
 
         salaryIncrementValidator.checkSalaryIncrementToUpdate(currentSalaryIncrement, salaryIncrement);
-        currentSalaryIncrement.setUpdatedBy(request.getHeader("username"));
+        currentSalaryIncrement.setUpdatedBy(username);
         currentSalaryIncrement.setStatus(Status.UPDATED);
         currentSalaryIncrement.setIncrementAmount(salaryIncrement.getIncrementAmount());
 
@@ -125,10 +125,10 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
 
     @Override
     @CacheEvict(value = "salary", key = "#salaryIncrementId")
-    public void deleteSalaryIncrement(String salaryIncrementId, HttpServletRequest request) {
+    public void deleteSalaryIncrement(String salaryIncrementId, String username) {
         log.info("Deleting salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
-        String name = request.getHeader("username");
+        String name = username;
         if(!name.equals(salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId).getCreatedBy())) {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to delete it");
         }
@@ -143,7 +143,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     }
 
     @Override
-    public SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, HttpServletRequest request) {
+    public SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, String username) {
         SalaryIncrement salaryIncrement = getSalaryIncrementById(salaryIncrementId);
         if (salaryIncrement.getStatus() == null) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
@@ -152,7 +152,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
         }
 
-        String name = request.getHeader("username");
+        String name = username;
         if(!Status.isValidStatusForLeaderDecision(leaderDecisionDTO.getStatus())) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Leader can only approve or reject salary increment");
         }
