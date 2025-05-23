@@ -6,11 +6,13 @@ import com.micro.commonlib.common.enumarate.UserStatus;
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
 import com.micro.commonlib.response.PageResponse;
+import com.micro.salaryservice.consts.ConstParameter;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.service.ExportService;
 
 import com.micro.salaryservice.service.SalaryIncrementService;
+import com.micro.salaryservice.service.impl.ExportServiceFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
 @RestController
@@ -32,7 +35,7 @@ import java.util.List;
 @Slf4j(topic = "SALARY-CONTROLLER")
 public class SalaryController {
     private final SalaryIncrementService salaryIncrementService;
-    private final ExportService exportService;
+    private final ExportServiceFactory exportServiceFactory;
     @PostMapping()
     public StandardResponse<SalaryIncrement> createSalaryIncrement(@Valid @RequestBody SalaryIncrement salaryIncrement,
                                                                    HttpServletRequest request) {
@@ -125,23 +128,27 @@ public class SalaryController {
         return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, request), "Leader decision made successfully");
     }
 
-    @GetMapping("/excel")
-    public StandardResponse<String> exportSalaryIncrementExcel(HttpServletResponse response) {
-        log.info("Exporting salary increments to Excel");
-        Object object = exportService.exportExcelFile(response);
-        // Implement the logic to export salary increments to Excel
-        return StandardResponse.build("Excel file generated successfully");
-    }
 
-    @GetMapping("/pdf")
-    public StandardResponse<String> exportSalaryIncrementPdf(HttpServletResponse response) {
-        log.info("Exporting salary increments to PDF");
+
+    @GetMapping("/export/{type}")
+    public StandardResponse<String> exportFactory(@PathVariable("type") String type,
+                                                  HttpServletResponse response) {
+        response.setContentType(ConstParameter.CONTENT_TYPE);
+
+        if(type.equalsIgnoreCase("pdf")) {
+            response.setHeader(ConstParameter.KEY, ConstParameter.VALUE_PDF);
+        } else if(type.equalsIgnoreCase("excel")) {
+            response.setHeader(ConstParameter.KEY, ConstParameter.VALUE);
+        } else {
+            throw new StandardException(ErrorMessages.INVALID_FORMAT, "Input type must be excel or pdf");
+        }
+
+        log.info("Exporting salary increments to " + type.toUpperCase());
         try {
-            exportService.exportPdfFile(response);
+            exportServiceFactory.getCurrentService(type).export(response.getOutputStream());
         } catch (IOException e) {
             throw new StandardException(ErrorMessages.BAD_REQUEST, "Error while writing PDF file");
         }
-        // Implement the logic to export salary increments to Excel
         return StandardResponse.build("Excel file generated successfully");
     }
 
