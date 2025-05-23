@@ -1,38 +1,36 @@
 package com.micro.salaryservice.service.impl;
 
-
 import com.lowagie.text.*;
 import com.lowagie.text.Font;
-import com.lowagie.text.pdf.*;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfWriter;
 import com.micro.salaryservice.consts.ConstParameter;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.repository.SalaryIncrementRepository;
-import com.micro.salaryservice.service.PdfService;
-import jakarta.servlet.http.HttpServletResponse;
+import com.micro.salaryservice.service.ExportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
-
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "PDF-SERVICE-IMPL")
-public class PdfServiceImpl implements PdfService {
+@Slf4j
+public class PdfExportServiceImpl implements ExportService {
     private final SalaryIncrementRepository salaryIncrementRepository;
     @Override
-    public void exportPdfFile(HttpServletResponse response) throws IOException {
+    public void export(OutputStream outputStream) {
 
-        response.setContentType(ConstParameter.CONTENT_TYPE);
-        response.setHeader(ConstParameter.KEY, ConstParameter.VALUE_PDF);
 
 
         Document document = new Document(PageSize.A4);
         // convert the document to pdf
-        PdfWriter.getInstance(document, response.getOutputStream());
+        PdfWriter.getInstance(document, outputStream);
 
         document.open();
 
@@ -81,10 +79,13 @@ public class PdfServiceImpl implements PdfService {
             table.addCell(safeString(salaryIncrement.getLeaderNote()));
         }
     }
+
     private String safeString(Object value) {
         return value != null ? value.toString() : "null";
     }
 
-
-
+    @Override
+    public String getType() {
+        return "pdf";
+    }
 }

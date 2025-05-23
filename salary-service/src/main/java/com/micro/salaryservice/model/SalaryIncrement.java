@@ -4,12 +4,15 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.micro.salaryservice.common.enumarate.Status;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Date;
 
@@ -17,7 +20,9 @@ import java.util.Date;
 @Builder
 @Document(collection = "salary_increment")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class SalaryIncrement {
+@AllArgsConstructor
+@NoArgsConstructor
+public class SalaryIncrement implements Serializable {
     @Id
     private String salaryIncrementId;
     @NotNull(message = "Employee ID cannot be null")

@@ -5,39 +5,35 @@ import com.micro.commonlib.common.exception.StandardException;
 import com.micro.salaryservice.consts.ConstParameter;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.repository.SalaryIncrementRepository;
-import com.micro.salaryservice.service.ExcelService;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.http.HttpServletResponse;
+import com.micro.salaryservice.service.ExportService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
 
-@Slf4j(topic = "EXCEL-SERVICE-IMPL")
 @Service
 @RequiredArgsConstructor
-public class ExcelServiceImpl implements ExcelService {
+@Slf4j(topic = "EXCEL_SERVICE")
+public class ExcelExportServiceImpl implements ExportService {
     private final SalaryIncrementRepository salaryIncrementRepository;
     @Override
-    public Object exportExcelFile(HttpServletResponse response) {
+    public void export(OutputStream outputStream) {
         Workbook workbook = new XSSFWorkbook();
         createSheetAndHeader(workbook);
-        response.setContentType(ConstParameter.CONTENT_TYPE);
-        response.setHeader(ConstParameter.KEY, ConstParameter.VALUE);
+
         try {
-            ServletOutputStream sos = response.getOutputStream();
-            workbook.write(sos);
+//            OutputStream sos = outputStream;
+            workbook.write(outputStream);
             workbook.close();
-            sos.flush();
-            sos.close();
-            return HttpStatus.OK;
+            outputStream.flush();
+            outputStream.close();
 
         } catch (IOException e) {
             throw new StandardException(ErrorMessages.BAD_REQUEST, "Error while writing excel file");
@@ -72,7 +68,12 @@ public class ExcelServiceImpl implements ExcelService {
             row.createCell(8).setCellValue(safeString(salaryIncrement.getLeaderNote()));
         }
     }
+
     private String safeString(Object value) {
         return value != null ? value.toString() : "null";
+    }
+    @Override
+    public String getType() {
+        return "excel";
     }
 }

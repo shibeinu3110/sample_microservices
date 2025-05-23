@@ -6,17 +6,20 @@ import com.micro.commonlib.common.enumarate.UserStatus;
 import com.micro.commonlib.common.exception.ErrorMessages;
 import com.micro.commonlib.common.exception.StandardException;
 import com.micro.commonlib.response.PageResponse;
+import com.micro.salaryservice.consts.ConstParameter;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
-import com.micro.salaryservice.service.ExcelService;
-import com.micro.salaryservice.service.PdfService;
+
+
 import com.micro.salaryservice.service.SalaryIncrementService;
+import com.micro.salaryservice.service.impl.ExportServiceFactory;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -31,15 +34,16 @@ import java.util.List;
 @Slf4j(topic = "SALARY-CONTROLLER")
 public class SalaryController {
     private final SalaryIncrementService salaryIncrementService;
-    private final ExcelService excelService;
-    private final PdfService pdfService;
+    private final ExportServiceFactory exportServiceFactory;
     @PostMapping()
     public StandardResponse<SalaryIncrement> createSalaryIncrement(@Valid @RequestBody SalaryIncrement salaryIncrement,
                                                                    HttpServletRequest request) {
         SalaryIncrement salaryIncrement1 = null;
 
         if(request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
-            salaryIncrement1 = salaryIncrementService.createSalaryIncrement(salaryIncrement, request);
+            String username = request.getHeader("username");
+            String role = request.getHeader("role");
+            salaryIncrement1 = salaryIncrementService.createSalaryIncrement(salaryIncrement, username, role);
         }
         else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to create salary increment");
@@ -61,12 +65,24 @@ public class SalaryController {
         return StandardResponse.build(salaryIncrementService.getAllSalaryIncrements(pageable), "All salary increments retrieved successfully");
     }
 
+
+    @GetMapping("/all/page-default")
+    public StandardResponse<Page<SalaryIncrement>> getAllSalaryIncrementsByPage(@RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size) {
+        int pageIndex = Math.max(page-1,0);
+        Pageable pageable = PageRequest.of(pageIndex, size);
+        return StandardResponse.build(salaryIncrementService.getAllSalaryIncrementsByPage(pageable), "All salary increments retrieved successfully");
+    }
+
+
     @PutMapping("/{salaryIncrementId}")
     public StandardResponse<SalaryIncrement> updateSalaryIncrement(@PathVariable String salaryIncrementId, @RequestBody SalaryIncrement salaryIncrement, HttpServletRequest request) {
 
         SalaryIncrement salaryIncrement1 = null;
         if(request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
-            salaryIncrement1 = salaryIncrementService.updateSalaryIncrement(salaryIncrementId, salaryIncrement, request);
+            String username = request.getHeader("username");
+            String role = request.getHeader("role");
+            salaryIncrement1 = salaryIncrementService.updateSalaryIncrement(salaryIncrementId, salaryIncrement, username);
         }
         else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to update salary increment");
@@ -78,7 +94,9 @@ public class SalaryController {
     @DeleteMapping("/{salaryIncrementId}")
     public StandardResponse<String> deleteSalaryIncrement(@PathVariable String salaryIncrementId, HttpServletRequest request) {
         if(request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
-            salaryIncrementService.deleteSalaryIncrement(salaryIncrementId, request);
+            String username = request.getHeader("username");
+            String role = request.getHeader("role");
+            salaryIncrementService.deleteSalaryIncrement(salaryIncrementId, username);
         }
         else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to delete this salary increment");
@@ -91,18 +109,7 @@ public class SalaryController {
         return StandardResponse.build(salaryIncrementService.getSalaryIncrementsByEmployeeId(employeeId), "Salary increments retrieved successfully");
     }
 
-    @GetMapping("/check")
-    public StandardResponse<String> check(@RequestHeader("username") String username, @RequestHeader("role") String role) {
-        log.info("Username: {}", username);
-        log.info("Role: {}", role);
-        if(UserStatus.ROLE_LEADER.toString().equals(role)) {
-            log.info("User is a leader");
-        } else {
-            log.info(role);
-            log.info(UserStatus.ROLE_LEADER.toString());
-        }
-        return StandardResponse.build("Salary service is running");
-    }
+
 
     @PutMapping("/leader-decision/{salaryIncrementId}")
     public StandardResponse<SalaryIncrement> leaderDecision(@PathVariable String salaryIncrementId,
@@ -112,27 +119,47 @@ public class SalaryController {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_LEADER to make a decision");
         }
 
-        return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, request), "Leader decision made successfully");
+        String username = request.getHeader("username");
+        String role = request.getHeader("role");
+        return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, username), "Leader decision made successfully");
     }
 
-    @GetMapping("/excel")
-    public StandardResponse<String> exportSalaryIncrementExcel(HttpServletResponse response) {
-        log.info("Exporting salary increments to Excel");
-        Object object = excelService.exportExcelFile(response);
-        // Implement the logic to export salary increments to Excel
-        return StandardResponse.build("Excel file generated successfully");
-    }
 
-    @GetMapping("/pdf")
-    public StandardResponse<String> exportSalaryIncrementPdf(HttpServletResponse response) {
-        log.info("Exporting salary increments to PDF");
+
+    @GetMapping("/export/{type}")
+    public StandardResponse<String> exportFactory(@PathVariable("type") String type,
+                                                  HttpServletResponse response) {
+        response.setContentType(ConstParameter.CONTENT_TYPE);
+
+        if(type.equalsIgnoreCase("pdf")) {
+            response.setHeader(ConstParameter.KEY, ConstParameter.VALUE_PDF);
+        } else if(type.equalsIgnoreCase("excel")) {
+            response.setHeader(ConstParameter.KEY, ConstParameter.VALUE);
+        } else {
+            throw new StandardException(ErrorMessages.INVALID_FORMAT, "Input type must be excel or pdf");
+        }
+
+        log.info("Exporting salary increments to " + type.toUpperCase());
         try {
-            pdfService.exportPdfFile(response);
+            exportServiceFactory.getCurrentService(type).export(response.getOutputStream());
         } catch (IOException e) {
             throw new StandardException(ErrorMessages.BAD_REQUEST, "Error while writing PDF file");
         }
-        // Implement the logic to export salary increments to Excel
         return StandardResponse.build("Excel file generated successfully");
+    }
+
+
+    @GetMapping("/check")
+    public StandardResponse<String> check(@RequestHeader("username") List<String> username, @RequestHeader("role") List<String> role) {
+        log.info("Username: {}", username.toString());
+        log.info("Role: {}", role.toString());
+        if(UserStatus.ROLE_LEADER.toString().equals(role)) {
+            log.info("User is a leader");
+        } else {
+
+            log.info(UserStatus.ROLE_LEADER.toString());
+        }
+        return StandardResponse.build("Salary service is running");
     }
 
 
