@@ -8,8 +8,8 @@ import com.micro.commonlib.common.exception.StandardException;
 import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
-import com.micro.salaryservice.service.ExcelService;
-import com.micro.salaryservice.service.PdfService;
+import com.micro.salaryservice.service.ExportService;
+
 import com.micro.salaryservice.service.SalaryIncrementService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,8 +32,7 @@ import java.util.List;
 @Slf4j(topic = "SALARY-CONTROLLER")
 public class SalaryController {
     private final SalaryIncrementService salaryIncrementService;
-    private final ExcelService excelService;
-    private final PdfService pdfService;
+    private final ExportService exportService;
     @PostMapping()
     public StandardResponse<SalaryIncrement> createSalaryIncrement(@Valid @RequestBody SalaryIncrement salaryIncrement,
                                                                    HttpServletRequest request) {
@@ -129,7 +128,7 @@ public class SalaryController {
     @GetMapping("/excel")
     public StandardResponse<String> exportSalaryIncrementExcel(HttpServletResponse response) {
         log.info("Exporting salary increments to Excel");
-        Object object = excelService.exportExcelFile(response);
+        Object object = exportService.exportExcelFile(response);
         // Implement the logic to export salary increments to Excel
         return StandardResponse.build("Excel file generated successfully");
     }
@@ -138,7 +137,7 @@ public class SalaryController {
     public StandardResponse<String> exportSalaryIncrementPdf(HttpServletResponse response) {
         log.info("Exporting salary increments to PDF");
         try {
-            pdfService.exportPdfFile(response);
+            exportService.exportPdfFile(response);
         } catch (IOException e) {
             throw new StandardException(ErrorMessages.BAD_REQUEST, "Error while writing PDF file");
         }
