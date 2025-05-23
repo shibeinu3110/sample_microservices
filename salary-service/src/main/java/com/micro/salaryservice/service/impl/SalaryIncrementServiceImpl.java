@@ -16,6 +16,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -70,33 +73,30 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     }
 
     @Override
+    @Cacheable(value = "salary", key = "#salaryIncrementId")
     public SalaryIncrement getSalaryIncrementById(String salaryIncrementId) {
         log.info("Getting salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
 
-        if(redisTemplate.opsForValue().get(salaryIncrementId) == null) {
-            SalaryIncrement salaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
-            redisTemplate.opsForValue().set(salaryIncrementId, salaryIncrement, 30, TimeUnit.MINUTES);
-            return salaryIncrement;
-        } else {
-            return redisTemplate.opsForValue().get(salaryIncrementId);
-        }
+        return salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
 
     }
 
     @Override
     public PageResponse<SalaryIncrement> getAllSalaryIncrements(Pageable pageable) {
-        var pageDate =  salaryIncrementRepository.findAll(pageable);
+        var pageData =  salaryIncrementRepository.findAll(pageable);
 
         return PageResponse.<SalaryIncrement>builder()
-                .currentPage(pageDate.getNumber()+1)
-                .totalPage(pageDate.getTotalPages())
-                .totalElements(pageDate.getTotalElements())
-                .data(pageDate.getContent())
+                .currentPage(pageData.getNumber()+1)
+                .totalPage(pageData.getTotalPages())
+                .totalElements(pageData.getTotalElements())
+                .pageSize(pageable.getPageSize())
+                .data(pageData.getContent())
                 .build();
     }
 
     @Override
+    @CachePut(value = "salary", key = "#salaryIncrementId")
     public SalaryIncrement updateSalaryIncrement(String salaryIncrementId, SalaryIncrement salaryIncrement, HttpServletRequest request) {
         log.info("Updating salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
@@ -120,14 +120,11 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         currentSalaryIncrement.setStatus(Status.UPDATED);
         currentSalaryIncrement.setIncrementAmount(salaryIncrement.getIncrementAmount());
 
-        if(redisTemplate.opsForValue().get(currentSalaryIncrement.getSalaryIncrementId())!=null) {
-            redisTemplate.opsForValue().set(currentSalaryIncrement.getSalaryIncrementId(), currentSalaryIncrement, 30, TimeUnit.MINUTES);
-        }
-
         return salaryIncrementRepository.save(currentSalaryIncrement);
     }
 
     @Override
+    @CacheEvict(value = "salary", key = "#salaryIncrementId")
     public void deleteSalaryIncrement(String salaryIncrementId, HttpServletRequest request) {
         log.info("Deleting salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
@@ -136,10 +133,6 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to delete it");
         }
         salaryIncrementRepository.deleteBySalaryIncrementId(salaryIncrementId);
-
-        if(redisTemplate.opsForValue().get(salaryIncrementId) != null) {
-            redisTemplate.delete(salaryIncrementId);
-        }
     }
 
     @Override
@@ -173,5 +166,10 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
             redisTemplate.opsForValue().set(salaryIncrement.getSalaryIncrementId(), salaryIncrement, 30, TimeUnit.MINUTES);
         }
         return salaryIncrementRepository.save(salaryIncrement);
+    }
+
+    @Override
+    public Page<SalaryIncrement> getAllSalaryIncrementsByPage(Pageable pageable) {
+        return salaryIncrementRepository.findAll(pageable);
     }
 }

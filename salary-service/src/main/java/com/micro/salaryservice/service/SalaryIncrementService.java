@@ -23,4 +23,6 @@ public interface SalaryIncrementService {
     List<SalaryIncrement> getSalaryIncrementsByEmployeeId(Long employeeId);
 
     SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, HttpServletRequest request);
+
+    Page<SalaryIncrement> getAllSalaryIncrementsByPage(Pageable pageable);
 }

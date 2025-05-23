@@ -17,6 +17,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +62,16 @@ public class SalaryController {
         return StandardResponse.build(salaryIncrementService.getAllSalaryIncrements(pageable), "All salary increments retrieved successfully");
     }
 
+
+    @GetMapping("/all/page-default")
+    public StandardResponse<Page<SalaryIncrement>> getAllSalaryIncrementsByPage(@RequestParam(defaultValue = "0") int page,
+                                                                          @RequestParam(defaultValue = "10") int size) {
+        int pageIndex = Math.max(page-1,0);
+        Pageable pageable = PageRequest.of(pageIndex, size);
+        return StandardResponse.build(salaryIncrementService.getAllSalaryIncrementsByPage(pageable), "All salary increments retrieved successfully");
+    }
+
+
     @PutMapping("/{salaryIncrementId}")
     public StandardResponse<SalaryIncrement> updateSalaryIncrement(@PathVariable String salaryIncrementId, @RequestBody SalaryIncrement salaryIncrement, HttpServletRequest request) {
 
@@ -92,13 +103,13 @@ public class SalaryController {
     }
 
     @GetMapping("/check")
-    public StandardResponse<String> check(@RequestHeader("username") String username, @RequestHeader("role") String role) {
-        log.info("Username: {}", username);
-        log.info("Role: {}", role);
+    public StandardResponse<String> check(@RequestHeader("username") List<String> username, @RequestHeader("role") List<String> role) {
+        log.info("Username: {}", username.toString());
+        log.info("Role: {}", role.toString());
         if(UserStatus.ROLE_LEADER.toString().equals(role)) {
             log.info("User is a leader");
         } else {
-            log.info(role);
+
             log.info(UserStatus.ROLE_LEADER.toString());
         }
         return StandardResponse.build("Salary service is running");
