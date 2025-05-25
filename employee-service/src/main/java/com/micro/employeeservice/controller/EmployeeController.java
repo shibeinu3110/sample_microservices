@@ -13,9 +13,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/employees")
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j(topic = "EMPLOYEE-CONTROLLER")
 public class EmployeeController {
     private final EmployeeService employeeService;
+
     @PostMapping()
     public StandardResponse<Employee> addEmployee(@Valid @RequestBody Employee employee) {
         log.info("Adding employee: {}", employee);

@@ -2,8 +2,7 @@ package com.micro.authservice.security;
 
 
 import com.micro.authservice.consts.ConstParameter;
-import com.micro.commonlib.common.exception.ErrorMessages;
-import com.micro.commonlib.common.exception.StandardException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,11 +16,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
+
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+
 
 
 import static com.micro.authservice.consts.SecurityConst.*;

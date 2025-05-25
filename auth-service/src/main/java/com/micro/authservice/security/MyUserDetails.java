@@ -1,10 +1,8 @@
 package com.micro.authservice.security;
 
 
-
 import com.micro.authservice.model.Role;
 import com.micro.authservice.model.User;
-import com.micro.authservice.service.RoleService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,11 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-
-import static com.micro.authservice.consts.SecurityConst.*;
 
 
 @Getter
@@ -28,6 +22,7 @@ import static com.micro.authservice.consts.SecurityConst.*;
 public class MyUserDetails implements UserDetails {
     private final User user;
     private final Role role;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.getRole()));

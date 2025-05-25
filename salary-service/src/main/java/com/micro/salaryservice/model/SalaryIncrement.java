@@ -4,17 +4,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.micro.salaryservice.common.enumarate.Status;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.CreatedDate;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Date;
 
 @Data
 @Builder
@@ -22,24 +18,25 @@ import java.util.Date;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SalaryIncrement implements Serializable {
     @Id
-    private String salaryIncrementId;
+    String salaryIncrementId;
     @NotNull(message = "Employee ID cannot be null")
-    private Long employeeId;
+    Long employeeId;
 
     @Min(value = 0, message = "Increment amount must be greater than or equal to 0")
-    private Long incrementAmount;
+    Long incrementAmount;
 
 
-    private LocalDate createdDate;
+    LocalDate createdDate;
 
-    private Status status;
-    private String createdBy;
-    private String updatedBy;
-    private String createdByRole;
+    Status status;
+    String createdBy;
+    String updatedBy;
+    String createdByRole;
 
-    private String endBy;
-    private LocalDate endDate;
-    private String leaderNote;
+    String endBy;
+    LocalDate endDate;
+    String leaderNote;
 }

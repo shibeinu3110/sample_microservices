@@ -8,8 +8,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.stereotype.Component;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
@@ -30,7 +30,7 @@ public class SalaryIncrementValidator {
         log.info("Validating salary increment to update: {}", newSalaryIncrement);
 
         // Check if the salary increment ID is valid
-        if(!newSalaryIncrement.getSalaryIncrementId().equals(currentSalaryIncrement.getSalaryIncrementId())) {
+        if (!newSalaryIncrement.getSalaryIncrementId().equals(currentSalaryIncrement.getSalaryIncrementId())) {
             throw new StandardException(ErrorMessages.SAVE_DATABASE_ERROR, "Can't change salary increment ID when updating");
         }
     }
@@ -40,7 +40,7 @@ public class SalaryIncrementValidator {
                 new Query(Criteria.where("salaryIncrementId").is(salaryIncrementId)),
                 SalaryIncrement.class
         );
-        if(exists) {
+        if (exists) {
             throw new StandardException(ErrorMessages.DUPLICATE, "Salary Increment ID already exists");
         }
     }
@@ -56,14 +56,14 @@ public class SalaryIncrementValidator {
 
     public void checkSalaryIncrementId(String salaryIncrementId) {
         log.info("Validating salary increment ID: {}", salaryIncrementId);
-        if(salaryIncrementId == null || salaryIncrementId.isEmpty()) {
+        if (salaryIncrementId == null || salaryIncrementId.isEmpty()) {
             throw new StandardException(ErrorMessages.INVALID_VALUE, "Salary Increment ID cannot be null or empty");
         }
         boolean exists = mongoTemplate.exists(
                 new Query(Criteria.where("salaryIncrementId").is(salaryIncrementId)),
                 SalaryIncrement.class
         );
-        if(!exists) {
+        if (!exists) {
             throw new StandardException(ErrorMessages.NOT_FOUND, "Salary Increment ID not found");
         }
     }

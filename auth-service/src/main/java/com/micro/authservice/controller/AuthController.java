@@ -16,16 +16,18 @@ import static com.micro.authservice.consts.SecurityConst.SECRET_STRENGTH;
 
 @RestController
 @RequestMapping("/auth")
-@Slf4j
+@Slf4j(topic = "AUTH-CONTROLLER")
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationService authenticationService;
     private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(SECRET_STRENGTH);
+
     @GetMapping("/sign-up")
     public StandardResponse<SignUpResponse> auth(@RequestBody SignUpRequest sign) {
         sign.setPassword(passwordEncoder.encode(sign.getPassword()));
         return StandardResponse.build(authenticationService.signUp(sign));
     }
+
     @PostMapping("/sign-in")
     public StandardResponse<SignUpResponse> login(@RequestBody SignInRequest sign) {
         return StandardResponse.build(authenticationService.signIn(sign));

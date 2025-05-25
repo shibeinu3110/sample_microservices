@@ -18,6 +18,7 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeValidator employeeValidator;
     private final EmployeeRepository employeeRepository;
     private final MongoTemplate mongoTemplate;
+
     @Override
     public Employee saveEmployee(Employee employee) {
         log.info("Saving employee: {}", employee);

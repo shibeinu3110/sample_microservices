@@ -1,9 +1,7 @@
 package com.micro.authservice.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -11,10 +9,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Role {
     @Id
-    private String id;
-
-    private String role; // ví dụ: ROLE_ADMIN, ROLE_USER
+    String id;
+    String role; // ví dụ: ROLE_ADMIN, ROLE_USER
 }

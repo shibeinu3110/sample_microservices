@@ -12,24 +12,19 @@ import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.repository.SalaryIncrementRepository;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import com.micro.salaryservice.validator.SalaryIncrementValidator;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -84,10 +79,10 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
 
     @Override
     public PageResponse<SalaryIncrement> getAllSalaryIncrements(Pageable pageable) {
-        var pageData =  salaryIncrementRepository.findAll(pageable);
+        var pageData = salaryIncrementRepository.findAll(pageable);
 
         return PageResponse.<SalaryIncrement>builder()
-                .currentPage(pageData.getNumber()+1)
+                .currentPage(pageData.getNumber() + 1)
                 .totalPage(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .pageSize(pageable.getPageSize())
@@ -101,16 +96,16 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         log.info("Updating salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
         SalaryIncrement currentSalaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
-        if(currentSalaryIncrement.getStatus() == null) {
+        if (currentSalaryIncrement.getStatus() == null) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to be updated");
         }
 
-        if(!Status.isValidToUpdate(currentSalaryIncrement.getStatus().toString())) {
+        if (!Status.isValidToUpdate(currentSalaryIncrement.getStatus().toString())) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to be updated");
         }
 
         String name = username;
-        if(!name.equals(currentSalaryIncrement.getCreatedBy())) {
+        if (!name.equals(currentSalaryIncrement.getCreatedBy())) {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to update it");
         }
 
@@ -129,7 +124,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         log.info("Deleting salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
         String name = username;
-        if(!name.equals(salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId).getCreatedBy())) {
+        if (!name.equals(salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId).getCreatedBy())) {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to delete it");
         }
         salaryIncrementRepository.deleteBySalaryIncrementId(salaryIncrementId);
@@ -148,12 +143,12 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         if (salaryIncrement.getStatus() == null) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
         }
-        if(!Status.isValidStatusForLeader(salaryIncrement.getStatus().toString())) {
+        if (!Status.isValidStatusForLeader(salaryIncrement.getStatus().toString())) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
         }
 
         String name = username;
-        if(!Status.isValidStatusForLeaderDecision(leaderDecisionDTO.getStatus())) {
+        if (!Status.isValidStatusForLeaderDecision(leaderDecisionDTO.getStatus())) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Leader can only approve or reject salary increment");
         }
 
@@ -162,7 +157,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryIncrement.setEndBy(name);
         salaryIncrement.setEndDate(LocalDate.now());
 
-        if(redisTemplate.opsForValue().get(salaryIncrement.getSalaryIncrementId())!=null) {
+        if (redisTemplate.opsForValue().get(salaryIncrement.getSalaryIncrementId()) != null) {
             redisTemplate.opsForValue().set(salaryIncrement.getSalaryIncrementId(), salaryIncrement, 30, TimeUnit.MINUTES);
         }
         return salaryIncrementRepository.save(salaryIncrement);

@@ -21,7 +21,6 @@ public class RedisConfig {
         template.setHashKeySerializer(new StringRedisSerializer());
 
 
-
         //object mapper to handle date & time
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.findAndRegisterModules();

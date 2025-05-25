@@ -20,7 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j(topic = "EXCEL_SERVICE")
+@Slf4j(topic = "EXCEL_EXPORT-SERVICE")
 public class ExcelExportServiceImpl implements ExportService {
     private final SalaryIncrementRepository salaryIncrementRepository;
     @Override

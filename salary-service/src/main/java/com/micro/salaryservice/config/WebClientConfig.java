@@ -8,10 +8,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+
 @Configuration
 @RequiredArgsConstructor
 public class WebClientConfig {
     private final LoadBalancedExchangeFilterFunction filterFunction;
+
     @Bean
     public WebClient employeeWebClient() {
         return WebClient.builder()
@@ -19,6 +21,7 @@ public class WebClientConfig {
                 .filter(filterFunction)
                 .build();
     }
+
     @Bean
     public EmployeeClient employeeClient() {
         HttpServiceProxyFactory factory = HttpServiceProxyFactory
