@@ -7,6 +7,8 @@ import com.micro.commonlib.common.exception.StandardException;
 import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.consts.ConstParameter;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
+import com.micro.salaryservice.dto.request.SalaryRequestDTO;
+import com.micro.salaryservice.dto.response.SalaryResponseDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.service.SalaryIncrementService;
 import com.micro.salaryservice.service.impl.ExportServiceFactory;
@@ -32,28 +34,26 @@ public class SalaryController {
     private final ExportServiceFactory exportServiceFactory;
 
     @PostMapping()
-    public StandardResponse<SalaryIncrement> createSalaryIncrement(@Valid @RequestBody SalaryIncrement salaryIncrement,
-                                                                   HttpServletRequest request) {
-        SalaryIncrement salaryIncrement1 = null;
-
+    public StandardResponse<SalaryResponseDTO> createSalaryIncrement(@Valid @RequestBody SalaryRequestDTO salaryIncrement,
+                                                                     HttpServletRequest request) {
         if (request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
             String username = request.getHeader("username");
             String role = request.getHeader("role");
-            salaryIncrement1 = salaryIncrementService.createSalaryIncrement(salaryIncrement, username, role);
+            return StandardResponse.build(salaryIncrementService.createSalaryIncrement(salaryIncrement, username, role), "Salary increment created successfully");
         } else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to create salary increment");
         }
-        return StandardResponse.build(salaryIncrement1, "Salary increment created successfully");
+
     }
 
     @GetMapping("/{salaryIncrementId}")
-    public StandardResponse<SalaryIncrement> getSalaryIncrement(@PathVariable String salaryIncrementId) {
+    public StandardResponse<SalaryResponseDTO> getSalaryIncrement(@PathVariable String salaryIncrementId) {
 
         return StandardResponse.build(salaryIncrementService.getSalaryIncrementById(salaryIncrementId), "Salary increment retrieved successfully");
     }
 
     @GetMapping("/all")
-    public StandardResponse<PageResponse<SalaryIncrement>> getAllSalaryIncrements(@RequestParam(defaultValue = "0") int page,
+    public StandardResponse<PageResponse<SalaryResponseDTO>> getAllSalaryIncrements(@RequestParam(defaultValue = "0") int page,
                                                                                   @RequestParam(defaultValue = "10") int size) {
         int pageIndex = Math.max(page - 1, 0);
         Pageable pageable = PageRequest.of(pageIndex, size);
@@ -71,18 +71,17 @@ public class SalaryController {
 
 
     @PutMapping("/{salaryIncrementId}")
-    public StandardResponse<SalaryIncrement> updateSalaryIncrement(@PathVariable String salaryIncrementId, @RequestBody SalaryIncrement salaryIncrement, HttpServletRequest request) {
+    public StandardResponse<SalaryResponseDTO> updateSalaryIncrement(@PathVariable String salaryIncrementId, @RequestBody SalaryRequestDTO salaryIncrement, HttpServletRequest request) {
 
-        SalaryIncrement salaryIncrement1 = null;
         if (request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_MANAGER.toString())) {
             String username = request.getHeader("username");
             String role = request.getHeader("role");
-            salaryIncrement1 = salaryIncrementService.updateSalaryIncrement(salaryIncrementId, salaryIncrement, username);
+            SalaryResponseDTO salaryResponseDTO = salaryIncrementService.updateSalaryIncrement(salaryIncrementId, salaryIncrement, username);
+            return StandardResponse.build(salaryResponseDTO, "Salary increment updated successfully");
+
         } else {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must have role: ROLE_MANAGER to update salary increment");
         }
-
-        return StandardResponse.build(salaryIncrement1, "Salary increment updated successfully");
     }
 
     @DeleteMapping("/{salaryIncrementId}")
@@ -98,13 +97,13 @@ public class SalaryController {
     }
 
     @GetMapping("/employee/{employeeId}")
-    public StandardResponse<List<SalaryIncrement>> getSalaryIncrementsByEmployeeId(@PathVariable Long employeeId) {
+    public StandardResponse<List<SalaryResponseDTO>> getSalaryIncrementsByEmployeeId(@PathVariable Long employeeId) {
         return StandardResponse.build(salaryIncrementService.getSalaryIncrementsByEmployeeId(employeeId), "Salary increments retrieved successfully");
     }
 
 
     @PutMapping("/leader-decision/{salaryIncrementId}")
-    public StandardResponse<SalaryIncrement> leaderDecision(@PathVariable String salaryIncrementId,
+    public StandardResponse<SalaryResponseDTO> leaderDecision(@PathVariable String salaryIncrementId,
                                                             @RequestBody LeaderDecisionDTO leaderDecisionDTO,
                                                             HttpServletRequest request) {
         if (!request.getHeader("role").toString().equalsIgnoreCase(UserStatus.ROLE_LEADER.toString())) {
@@ -112,7 +111,6 @@ public class SalaryController {
         }
 
         String username = request.getHeader("username");
-        String role = request.getHeader("role");
         return StandardResponse.build(salaryIncrementService.leaderDecision(salaryIncrementId, leaderDecisionDTO, username), "Leader decision made successfully");
     }
 

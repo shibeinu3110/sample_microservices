@@ -2,6 +2,8 @@ package com.micro.salaryservice.service;
 
 import com.micro.commonlib.response.PageResponse;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
+import com.micro.salaryservice.dto.request.SalaryRequestDTO;
+import com.micro.salaryservice.dto.response.SalaryResponseDTO;
 import com.micro.salaryservice.model.SalaryIncrement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,19 +11,19 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface SalaryIncrementService {
-    SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement, String username, String role);
+    SalaryResponseDTO createSalaryIncrement(SalaryRequestDTO salaryIncrement, String username, String role);
 
-    SalaryIncrement getSalaryIncrementById(String salaryIncrementId);
+    SalaryResponseDTO getSalaryIncrementById(String salaryIncrementId);
 
-    PageResponse<SalaryIncrement> getAllSalaryIncrements(Pageable pageable);
+    PageResponse<SalaryResponseDTO> getAllSalaryIncrements(Pageable pageable);
 
-    SalaryIncrement updateSalaryIncrement(String salaryIncrementId, SalaryIncrement salaryIncrement, String username);
+    SalaryResponseDTO updateSalaryIncrement(String salaryIncrementId, SalaryRequestDTO salaryIncrement, String username);
 
     void deleteSalaryIncrement(String salaryIncrementId, String username);
 
-    List<SalaryIncrement> getSalaryIncrementsByEmployeeId(Long employeeId);
+    List<SalaryResponseDTO> getSalaryIncrementsByEmployeeId(Long employeeId);
 
-    SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, String username);
+    SalaryResponseDTO leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, String username);
 
     Page<SalaryIncrement> getAllSalaryIncrementsByPage(Pageable pageable);
 }

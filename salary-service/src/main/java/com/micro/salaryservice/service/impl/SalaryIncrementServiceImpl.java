@@ -7,6 +7,9 @@ import com.micro.salaryservice.client.EmployeeClient;
 import com.micro.salaryservice.common.enumarate.Status;
 import com.micro.salaryservice.dto.LeaderDecisionDTO;
 import com.micro.salaryservice.dto.SalaryMailDTO;
+import com.micro.salaryservice.dto.request.SalaryRequestDTO;
+import com.micro.salaryservice.dto.response.SalaryResponseDTO;
+import com.micro.salaryservice.mapper.SalaryIncrementMapper;
 import com.micro.salaryservice.model.Employee;
 import com.micro.salaryservice.model.SalaryIncrement;
 import com.micro.salaryservice.repository.SalaryIncrementRepository;
@@ -36,9 +39,11 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     private final EmployeeClient employeeClient;
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final RedisTemplate<String, SalaryIncrement> redisTemplate;
+    private final SalaryIncrementMapper salaryIncrementMapper;
 
     @Override
-    public SalaryIncrement createSalaryIncrement(SalaryIncrement salaryIncrement, String username, String role) {
+    public SalaryResponseDTO createSalaryIncrement(SalaryRequestDTO salaryIncrementDTO, String username, String role) {
+        SalaryIncrement salaryIncrement = salaryIncrementMapper.toSalaryIncrement(salaryIncrementDTO);
         //validate the salary increment
         salaryIncrementValidator.checkSalaryIncrement(salaryIncrement);
         salaryIncrementValidator.checkValidEmployeeId(salaryIncrement.getEmployeeId());
@@ -63,36 +68,36 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryMailDTO.setEmployeeEmail(employee.email());
 
         kafkaTemplate.send("email-topic", salaryMailDTO);
-        return savedSalary;
+        return salaryIncrementMapper.toSalaryResponseDTO(savedSalary);
 
     }
 
     @Override
     @Cacheable(value = "salary", key = "#salaryIncrementId")
-    public SalaryIncrement getSalaryIncrementById(String salaryIncrementId) {
+    public SalaryResponseDTO getSalaryIncrementById(String salaryIncrementId) {
         log.info("Getting salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
 
-        return salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
+        return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId));
 
     }
 
     @Override
-    public PageResponse<SalaryIncrement> getAllSalaryIncrements(Pageable pageable) {
+    public PageResponse<SalaryResponseDTO> getAllSalaryIncrements(Pageable pageable) {
         var pageData = salaryIncrementRepository.findAll(pageable);
 
-        return PageResponse.<SalaryIncrement>builder()
+        return PageResponse.<SalaryResponseDTO>builder()
                 .currentPage(pageData.getNumber() + 1)
                 .totalPage(pageData.getTotalPages())
                 .totalElements(pageData.getTotalElements())
                 .pageSize(pageable.getPageSize())
-                .data(pageData.getContent())
+                .data(salaryIncrementMapper.toSalaryResponseDTOList(pageData.getContent()))
                 .build();
     }
 
     @Override
     @CachePut(value = "salary", key = "#salaryIncrementId")
-    public SalaryIncrement updateSalaryIncrement(String salaryIncrementId, SalaryIncrement salaryIncrement, String username) {
+    public SalaryResponseDTO updateSalaryIncrement(String salaryIncrementId, SalaryRequestDTO salaryIncrementDTO, String username) {
         log.info("Updating salary increment with ID: {}", salaryIncrementId);
         salaryIncrementValidator.checkSalaryIncrementId(salaryIncrementId);
         SalaryIncrement currentSalaryIncrement = salaryIncrementRepository.findBySalaryIncrementId(salaryIncrementId);
@@ -109,13 +114,13 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
             throw new StandardException(ErrorMessages.ACCESS_DENIED, "You must be the creator of this salary increment to update it");
         }
 
-
+        SalaryIncrement salaryIncrement = salaryIncrementMapper.toSalaryIncrement(salaryIncrementDTO);
         salaryIncrementValidator.checkSalaryIncrementToUpdate(currentSalaryIncrement, salaryIncrement);
         currentSalaryIncrement.setUpdatedBy(username);
         currentSalaryIncrement.setStatus(Status.UPDATED);
         currentSalaryIncrement.setIncrementAmount(salaryIncrement.getIncrementAmount());
 
-        return salaryIncrementRepository.save(currentSalaryIncrement);
+        return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.save(currentSalaryIncrement));
     }
 
     @Override
@@ -131,19 +136,21 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     }
 
     @Override
-    public List<SalaryIncrement> getSalaryIncrementsByEmployeeId(Long employeeId) {
+    public List<SalaryResponseDTO> getSalaryIncrementsByEmployeeId(Long employeeId) {
         salaryIncrementValidator.checkValidEmployeeId(employeeId);
         log.info("Getting salary increments for employee ID: {}", employeeId);
-        return salaryIncrementRepository.findByEmployeeId(employeeId);
+        return salaryIncrementMapper.toSalaryResponseDTOList(salaryIncrementRepository.findByEmployeeId(employeeId));
     }
 
     @Override
-    public SalaryIncrement leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, String username) {
-        SalaryIncrement salaryIncrement = getSalaryIncrementById(salaryIncrementId);
-        if (salaryIncrement.getStatus() == null) {
+    @CachePut(value = "salary", key = "#salaryIncrementId")
+    public SalaryResponseDTO leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, String username) {
+//        SalaryIncrement salaryIncrement = getSalaryIncrementById(salaryIncrementId));
+        SalaryResponseDTO salaryResponseDTO = getSalaryIncrementById(salaryIncrementId);
+        if (salaryResponseDTO.getStatus() == null) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
         }
-        if (!Status.isValidStatusForLeader(salaryIncrement.getStatus().toString())) {
+        if (!Status.isValidStatusForLeader(salaryResponseDTO.getStatus().toString())) {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Salary increment is not in a valid state to make decision");
         }
 
@@ -152,15 +159,14 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
             throw new StandardException(ErrorMessages.INVALID_STATUS, "Leader can only approve or reject salary increment");
         }
 
+        SalaryIncrement salaryIncrement = salaryIncrementMapper.toSalaryIncrement(salaryResponseDTO);
+
         salaryIncrement.setStatus(Status.valueOf(leaderDecisionDTO.getStatus().toUpperCase()));
         salaryIncrement.setLeaderNote(leaderDecisionDTO.getNote());
         salaryIncrement.setEndBy(name);
         salaryIncrement.setEndDate(LocalDate.now());
 
-        if (redisTemplate.opsForValue().get(salaryIncrement.getSalaryIncrementId()) != null) {
-            redisTemplate.opsForValue().set(salaryIncrement.getSalaryIncrementId(), salaryIncrement, 30, TimeUnit.MINUTES);
-        }
-        return salaryIncrementRepository.save(salaryIncrement);
+        return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.save(salaryIncrement));
     }
 
     @Override
