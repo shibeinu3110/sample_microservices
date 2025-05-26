@@ -1,16 +1,18 @@
 package com.micro.employeeservice.service;
 
+import com.micro.employeeservice.dto.request.EmployeeRequestDTO;
+import com.micro.employeeservice.dto.response.EmployeeResponseDTO;
 import com.micro.employeeservice.model.Employee;
 
 import java.util.List;
 
 public interface EmployeeService {
-    Employee saveEmployee(Employee employee);
-    Employee getEmployeeById(Long employeeId);
+    EmployeeResponseDTO saveEmployee(EmployeeRequestDTO employee);
+    EmployeeResponseDTO getEmployeeById(Long employeeId);
 
-    List<Employee> getAllEmployees();
+    List<EmployeeResponseDTO> getAllEmployees();
 
-    Employee updateEmployee(Long employeeId, Employee newEmployee);
+    EmployeeResponseDTO updateEmployee(Long employeeId, EmployeeRequestDTO newEmployee);
 
     void deleteEmployee(Long employeeId);
 }

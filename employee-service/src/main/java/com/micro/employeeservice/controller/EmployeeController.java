@@ -1,6 +1,8 @@
 package com.micro.employeeservice.controller;
 
 import com.micro.commonlib.common.StandardResponse;
+import com.micro.employeeservice.dto.request.EmployeeRequestDTO;
+import com.micro.employeeservice.dto.response.EmployeeResponseDTO;
 import com.micro.employeeservice.model.Employee;
 import com.micro.employeeservice.service.EmployeeService;
 import jakarta.validation.Valid;
@@ -18,25 +20,25 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
     @PostMapping()
-    public StandardResponse<Employee> addEmployee(@Valid @RequestBody Employee employee) {
+    public StandardResponse<EmployeeResponseDTO> addEmployee(@Valid @RequestBody EmployeeRequestDTO employee) {
         log.info("Adding employee: {}", employee);
         return StandardResponse.build(employeeService.saveEmployee(employee), "Employee added successfully");
     }
 
     @GetMapping("/{employeeId}")
-    public StandardResponse<Employee> getEmployeeById(@PathVariable Long employeeId) {
+    public StandardResponse<EmployeeResponseDTO> getEmployeeById(@PathVariable Long employeeId) {
         log.info("Getting employee with id: {}", employeeId);
         return StandardResponse.build(employeeService.getEmployeeById(employeeId), "Employee retrieved successfully");
     }
 
     @GetMapping("/all")
-    public StandardResponse<List<Employee>> getAllEmployees() {
+    public StandardResponse<List<EmployeeResponseDTO>> getAllEmployees() {
         log.info("Getting all employees");
         return StandardResponse.build(employeeService.getAllEmployees(), "All employees retrieved successfully");
     }
 
     @PutMapping("/{employeeId}")
-    public StandardResponse<Employee> updateEmployee(@PathVariable Long employeeId, @Valid @RequestBody Employee newEmployee) {
+    public StandardResponse<EmployeeResponseDTO> updateEmployee(@PathVariable Long employeeId, @Valid @RequestBody EmployeeRequestDTO newEmployee) {
         log.info("Updating employee with id: {}", employeeId);
         return StandardResponse.build(employeeService.updateEmployee(employeeId, newEmployee), "Employee updated successfully");
     }
