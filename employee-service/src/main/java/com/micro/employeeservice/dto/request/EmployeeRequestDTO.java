@@ -36,4 +36,7 @@ public class EmployeeRequestDTO {
             message = "Phone number format is invalid"
     )
     String phone;
+
+    @Min(value = 0, message = "Current salary must be greater than or equal to 0")
+    Long currentSalary;
 }
