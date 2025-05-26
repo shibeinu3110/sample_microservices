@@ -32,8 +32,8 @@
         <module name="auth-service" />
         <module name="salary-service" />
         <module name="department-service" />
-        <module name="email-service" />
         <module name="employee-service" />
+        <module name="email-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

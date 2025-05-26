@@ -49,4 +49,11 @@ public class EmployeeController {
         employeeService.deleteEmployee(employeeId);
         return StandardResponse.build("Employee deleted successfully");
     }
+
+    @PutMapping("/salary-acceptance/{employeeId}")
+    public StandardResponse<String> acceptSalaryIncrement(@PathVariable Long employeeId, @RequestParam Long amount) {
+        log.info("Accepting salary increment for employee with id: {}", employeeId);
+        employeeService.acceptSalaryIncrement(employeeId, amount);
+        return StandardResponse.build("Salary increment accepted successfully, you can check by getting employee by id");
+    }
 }

@@ -15,4 +15,6 @@ public interface EmployeeService {
     EmployeeResponseDTO updateEmployee(Long employeeId, EmployeeRequestDTO newEmployee);
 
     void deleteEmployee(Long employeeId);
+
+    void acceptSalaryIncrement(Long employeeId, Long amount);
 }

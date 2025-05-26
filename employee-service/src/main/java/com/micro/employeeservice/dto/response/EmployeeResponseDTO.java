@@ -13,4 +13,5 @@ public class EmployeeResponseDTO {
     String postcode;
     String email;
     String phone;
+    Long currentSalary;
 }

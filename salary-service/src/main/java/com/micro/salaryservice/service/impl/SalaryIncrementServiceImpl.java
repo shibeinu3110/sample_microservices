@@ -166,7 +166,27 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryIncrement.setEndBy(name);
         salaryIncrement.setEndDate(LocalDate.now());
 
-        return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.save(salaryIncrement));
+        //handle salary increment acceptance
+        if (salaryIncrement.getStatus().equals(Status.ACCEPTED)) {
+            log.info("Leader accepted salary increment with ID: {}", salaryIncrementId);
+            Employee employee = employeeClient.getEmployeeById(salaryIncrement.getEmployeeId()).getData();
+            if (employee.currentSalary() * 0.2 <= salaryIncrement.getIncrementAmount()) {
+                // can be improved by set salary increment to another status like: REJECTED, INVALID, etc.
+                throw new StandardException(ErrorMessages.SAVE_DATABASE_ERROR, "Increment amount must be less than 20% of the current salary");
+            }
+            // Update employee's current salary
+
+            employeeClient.acceptSalaryIncrement(
+                    salaryIncrement.getEmployeeId(),
+                    salaryIncrement.getIncrementAmount()
+            );
+            return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.save(salaryIncrement));
+        } else if (salaryIncrement.getStatus().equals(Status.REJECTED)) {
+            log.info("Leader rejected salary increment with ID: {}", salaryIncrementId);
+            return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.save(salaryIncrement));
+        } else {
+            throw new StandardException(ErrorMessages.INVALID_STATUS, "Leader can only approve or reject salary increment");
+        }
     }
 
     @Override
