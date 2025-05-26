@@ -1,8 +1,6 @@
 package com.micro.salaryservice.service;
 
 
-
-import java.io.IOException;
 import java.io.OutputStream;
 
 public interface ExportService {

@@ -1,7 +1,7 @@
 package com.micro.salaryservice.service.impl;
 
-import com.lowagie.text.*;
 import com.lowagie.text.Font;
+import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
@@ -14,13 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j(topic = "PDF-EXPORT-SERVICE")
 public class PdfExportServiceImpl implements ExportService {
     private final SalaryIncrementRepository salaryIncrementRepository;
     @Override

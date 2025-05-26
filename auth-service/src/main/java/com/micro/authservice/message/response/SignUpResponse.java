@@ -2,6 +2,7 @@ package com.micro.authservice.message.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
@@ -9,9 +10,10 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SignUpResponse {
-    private String token;
-    private String name;
-    private String roleId;
-    private String roleName;
+    String token;
+    String name;
+    String roleId;
+    String roleName;
 }

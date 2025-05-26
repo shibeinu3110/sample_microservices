@@ -1,9 +1,7 @@
 package com.micro.salaryservice.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
@@ -11,10 +9,11 @@ import java.time.LocalDate;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SalaryMailDTO {
-    private String salaryIncrementId;
-    private Long incrementAmount;
-    private LocalDate createdDate;
-    private String employeeEmail;
-    private String employeeName;
+    String salaryIncrementId;
+    Long incrementAmount;
+    LocalDate createdDate;
+    String employeeEmail;
+    String employeeName;
 }

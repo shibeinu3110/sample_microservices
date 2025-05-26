@@ -1,12 +1,15 @@
 package com.micro.authservice.message.request;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class SignUpRequest {
-    private String username;
-    private String password;
-    private Long roleId;
+    String username;
+    String password;
+    Long roleId;
 }

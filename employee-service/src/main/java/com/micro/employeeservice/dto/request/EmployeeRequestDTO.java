@@ -1,21 +1,15 @@
-package com.micro.employeeservice.model;
+package com.micro.employeeservice.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Data
-@Builder
-@Document(collection = "employee")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Employee {
-    @Id
+public class EmployeeRequestDTO {
     @NotNull(message = "Employee ID cannot be null")
     Long employeeId;
     String firstName;

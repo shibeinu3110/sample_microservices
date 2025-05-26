@@ -1,5 +1,8 @@
 package com.micro.employeeservice.service.impl;
 
+import com.micro.employeeservice.dto.request.EmployeeRequestDTO;
+import com.micro.employeeservice.dto.response.EmployeeResponseDTO;
+import com.micro.employeeservice.mapper.EmployeeMapper;
 import com.micro.employeeservice.model.Employee;
 import com.micro.employeeservice.repository.EmployeeRepository;
 import com.micro.employeeservice.service.EmployeeService;
@@ -18,34 +21,39 @@ public class EmployeeServiceImpl implements EmployeeService {
     private final EmployeeValidator employeeValidator;
     private final EmployeeRepository employeeRepository;
     private final MongoTemplate mongoTemplate;
+    private final EmployeeMapper employeeMapper;
+
     @Override
-    public Employee saveEmployee(Employee employee) {
+    public EmployeeResponseDTO saveEmployee(EmployeeRequestDTO employee) {
         log.info("Saving employee: {}", employee);
-        employeeValidator.checkEmployee(employee);
-        return employeeRepository.save(employee);
+        employeeValidator.checkEmployee(employeeMapper.toEmployee(employee));
+        Employee employee1 = employeeRepository.save(employeeMapper.toEmployee(employee));
+
+        return employeeMapper.toEmployeeResponseDTO(employee1);
     }
 
     @Override
-    public Employee getEmployeeById(Long employeeId) {
+    public EmployeeResponseDTO getEmployeeById(Long employeeId) {
         log.info("Getting employee with id: {}", employeeId);
         employeeValidator.checkEmployeeId(employeeId);
-        return employeeRepository.findByEmployeeId(employeeId);
+        return employeeMapper.toEmployeeResponseDTO(employeeRepository.findByEmployeeId(employeeId));
     }
 
     @Override
-    public List<Employee> getAllEmployees() {
+    public List<EmployeeResponseDTO> getAllEmployees() {
         log.info("Getting all employees");
-        return employeeRepository.findAll();
+        return employeeMapper.toEmployeeResponseDTOList(employeeRepository.findAll());
     }
 
     @Override
-    public Employee updateEmployee(Long employeeId, Employee newEmployee) {
+    public EmployeeResponseDTO updateEmployee(Long employeeId, EmployeeRequestDTO newEmployee) {
         log.info("Updating employee with id: {}", employeeId);
         employeeValidator.checkEmployeeId(employeeId);
         Employee currentEmployee = employeeRepository.findByEmployeeId(employeeId);
-        employeeValidator.checkEmployeeToUpdate(currentEmployee, newEmployee);
+        employeeValidator.checkEmployeeToUpdate(currentEmployee, employeeMapper.toEmployee(newEmployee));
+        Employee employee = mongoTemplate.save(employeeMapper.toEmployee(newEmployee));
 
-        return mongoTemplate.save(newEmployee);
+        return employeeMapper.toEmployeeResponseDTO(employee);
     }
 
     @Override

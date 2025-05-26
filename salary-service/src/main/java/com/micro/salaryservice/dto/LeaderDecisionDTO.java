@@ -1,14 +1,16 @@
 package com.micro.salaryservice.dto;
 
-import com.micro.salaryservice.common.enumarate.Status;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldDefaults;
 
 @Setter
 @Getter
 @AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LeaderDecisionDTO {
-    private String status;
-    private String note;
+    String status;
+    String note;
 }

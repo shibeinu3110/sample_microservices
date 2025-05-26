@@ -2,10 +2,8 @@ package com.micro.employeeservice.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.micro.employeeservice.dto.DepartmentDTO;
-import com.micro.employeeservice.model.Employee;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
