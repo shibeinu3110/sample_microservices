@@ -26,4 +26,5 @@ public interface SalaryIncrementService {
     SalaryResponseDTO leaderDecision(String salaryIncrementId, LeaderDecisionDTO leaderDecisionDTO, String username);
 
     Page<SalaryIncrement> getAllSalaryIncrementsByPage(Pageable pageable);
+    void scheduleSalaryIncrementEviction();
 }
