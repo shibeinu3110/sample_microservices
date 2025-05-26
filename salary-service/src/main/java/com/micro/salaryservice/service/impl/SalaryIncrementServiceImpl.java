@@ -167,7 +167,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
         salaryIncrement.setEndDate(LocalDate.now());
 
         //handle salary increment acceptance
-        if (salaryIncrement.getStatus().equals(Status.ACCEPTED)) {
+        if (Status.ACCEPTED.equals(salaryIncrement.getStatus())) {
             log.info("Leader accepted salary increment with ID: {}", salaryIncrementId);
             Employee employee = employeeClient.getEmployeeById(salaryIncrement.getEmployeeId()).getData();
             if (employee.currentSalary() * 0.2 <= salaryIncrement.getIncrementAmount()) {
@@ -181,7 +181,7 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
                     salaryIncrement.getIncrementAmount()
             );
             return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.save(salaryIncrement));
-        } else if (salaryIncrement.getStatus().equals(Status.REJECTED)) {
+        } else if (Status.REJECTED.equals(salaryIncrement.getStatus())) {
             log.info("Leader rejected salary increment with ID: {}", salaryIncrementId);
             return salaryIncrementMapper.toSalaryResponseDTO(salaryIncrementRepository.save(salaryIncrement));
         } else {
@@ -193,4 +193,27 @@ public class SalaryIncrementServiceImpl implements SalaryIncrementService {
     public Page<SalaryIncrement> getAllSalaryIncrementsByPage(Pageable pageable) {
         return salaryIncrementRepository.findAll(pageable);
     }
+
+    @Override
+    public void scheduleSalaryIncrementEviction() {
+        List<SalaryIncrement> salaryIncrements = salaryIncrementRepository.findAll();
+        for(SalaryIncrement salaryIncrement : salaryIncrements) {
+            if (Status.REJECTED.equals(salaryIncrement.getStatus())) {
+                salaryIncrementRepository.deleteBySalaryIncrementId(salaryIncrement.getSalaryIncrementId());
+                log.info("Evicted salary increment with ID: {}", salaryIncrement.getSalaryIncrementId());
+                scheduleSalaryIncrementCacheEviction(salaryIncrement.getSalaryIncrementId());
+            }
+        }
+    }
+
+    @CacheEvict(value = "salary", key = "#salaryIncrementId")
+    public void scheduleSalaryIncrementCacheEviction(String salaryIncrementId) {
+        log.info("Scheduled eviction for salary increment with ID: {}", salaryIncrementId);
+    }
+
+
+
+
+
+
 }
