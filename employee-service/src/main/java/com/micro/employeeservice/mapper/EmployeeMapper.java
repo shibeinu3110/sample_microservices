@@ -17,5 +17,7 @@ public interface EmployeeMapper {
 
     List<EmployeeResponseDTO> toEmployeeResponseDTOList(List<Employee> employees);
 
+    EmployeeRequestDTO toEmployeeRequestDTO(Employee employee);
+
 
 }
