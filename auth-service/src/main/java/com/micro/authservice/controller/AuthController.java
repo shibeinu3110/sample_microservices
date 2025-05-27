@@ -35,6 +35,8 @@ public class AuthController {
 
     @PostMapping("/logout")
     public StandardResponse<String> logout(HttpServletRequest request) {
-        return StandardResponse.build(authenticationService.logout(request));
+        log.info("Logout request received: {}", request.getRequestURI());
+        String authHeader = request.getHeader("Authorization");
+        return StandardResponse.build(authenticationService.logout(authHeader));
     }
 }
