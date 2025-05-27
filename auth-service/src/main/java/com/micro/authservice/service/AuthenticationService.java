@@ -6,10 +6,12 @@ import com.micro.authservice.message.response.SignUpResponse;
 import com.micro.authservice.message.response.TokenResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.io.InputStream;
+
 public interface AuthenticationService {
     SignUpResponse signUp(SignUpRequest signUpRequest);
     SignUpResponse signIn(SignInRequest signInRequest);
     TokenResponse getRefreshToken(HttpServletRequest refreshToken);
 
-    String logout(HttpServletRequest request);
+    String logout(String authHeader);
 }

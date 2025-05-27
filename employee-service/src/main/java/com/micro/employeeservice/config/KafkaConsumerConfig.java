@@ -16,6 +16,10 @@ import java.util.Map;
 @Configuration
 @EnableKafka
 public class KafkaConsumerConfig {
+
+    //define consumer factory for Kafka
+    //config how we deserialize the message
+    //for this config, i want to deserialize the message to Object.class and handle it later
     @Bean
     public ConsumerFactory<String, Object> consumerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -34,6 +38,9 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(configProps, new StringDeserializer(), new JsonDeserializer<>(Object.class, false));
     }
 
+
+    //define the KafkaListenerContainerFactory so that we can use @KafkaListener
+    //this factory is concurrent, meaning it can handle multiple messages at the same time
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Object> kafkaListenerContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();

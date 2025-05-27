@@ -8,4 +8,6 @@ public class ConstParameter {
     public static final String POSTCODE_REGEX = "^[0-9]{6,11}$";
     public static final String ACCESS_TOKEN = "redisAccessToken";
     public static final String BLACK_LIST = "blackList";
+
+    public static final String DEFAULT_ROLE_ID = "2"; //set default role id to 2 (user role)
 }

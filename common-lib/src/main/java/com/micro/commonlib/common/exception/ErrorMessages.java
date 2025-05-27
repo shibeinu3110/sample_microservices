@@ -23,7 +23,9 @@ public enum ErrorMessages implements ErrorMessage {
     INTERNAL_SERVER_ERROR(500, "Internal server error"),
     INVALID_TOKEN(401_001, "Invalid token"),
     EXPIRED_TOKEN(401_002, "Expired token"),
-    INVALID_STATUS(401_003, "Invalid status")
+    INVALID_STATUS(401_003, "Invalid status"),
+    ACCOUNT_DISABLED(401_004, "Account is disabled"),
+    INTERNAL_ERROR(500_001, "Internal error"),
     ;
 
     int code;

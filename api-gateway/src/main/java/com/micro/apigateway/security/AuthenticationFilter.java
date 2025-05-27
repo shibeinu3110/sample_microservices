@@ -35,6 +35,9 @@ public class AuthenticationFilter implements GlobalFilter {
     private final RouteValidator routeValidator;
     private final ObjectMapper objectMapper;
     private final String ACCESS_TOKEN="redisAccessToken";
+
+    //mono accepts only one value, so we can use it to return a response or empty response
+    //mono is a reactive type that represents a single asynchronous value or empty response
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("Request Path: {}", exchange.getRequest().getPath());
@@ -89,8 +92,12 @@ public class AuthenticationFilter implements GlobalFilter {
         response.setStatusCode(HttpStatus.valueOf(statusCode));
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
+
+        // custom mah error response
         StandardResponse errorResponse = StandardResponse.build(ErrorMessages.ACCESS_DENIED, message);
 
+
+        // serialize error response to bytes array JSON
         byte[] bytes;
         try {
             bytes = objectMapper.writeValueAsBytes(errorResponse);
@@ -99,6 +106,7 @@ public class AuthenticationFilter implements GlobalFilter {
             bytes = "{\"message\":\"Unable to process error\"}".getBytes(StandardCharsets.UTF_8);
         }
 
+        // wrap bytes into DataBuffer and write to response
         DataBuffer buffer = response.bufferFactory().wrap(bytes);
         return response.writeWith(Mono.just(buffer));
     }
